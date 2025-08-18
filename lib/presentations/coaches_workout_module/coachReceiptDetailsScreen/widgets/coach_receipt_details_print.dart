@@ -1,0 +1,182 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:gymatvendor/presentations/gym_module/gymReceiptDetailsScreen/widgets/service_order_item.dart';
+import 'package:gymatvendor/presentations/gym_module/gymReceiptDetailsScreen/widgets/service_order_item_print.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:screenshot/screenshot.dart';
+
+import '../../../../core/app_colors/app_colors.dart';
+import '../../../../core/app_theme/theme.dart';
+import '../../../../core/number_format/numberFormat.dart';
+import '../../../../data/models/coachOrderDetailsModel.dart';
+import '../../../../data/models/gymOrderDetailsModel.dart';
+import '../../../widgets/custom_avatar/custom_avatar.dart';
+import '../../../widgets/custom_svg/CustomSvgIcon.dart';
+import '../../../widgets/custom_text/custom_text.dart';
+import 'coach_service_order_item_print.dart';
+
+class CoachReciptDetailsPrint extends StatelessWidget {
+  final CoachOrderDetailsModel model;
+  final ScreenshotController screenshotController;
+
+  const CoachReciptDetailsPrint({super.key,required this.model, required this.screenshotController});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return SingleChildScrollView(
+      child:Screenshot(
+        controller: screenshotController,
+        child: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+
+                const SizedBox(height: 16,),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    CustomAvatar(radius: 24,url: model.market?.logo,),
+                    const SizedBox(width: 4,),
+                    CustomText(title: model.market?.business_name??'',fontColor: Colors.black,fontSize: 15,),
+
+                  ],
+
+                ),
+                const SizedBox(height: 4,),
+                CustomText(title: (model.market?.desc??''),fontColor: greyColor,fontSize: 12),
+                const SizedBox(height: 24,),
+                QrImageView(data: '${model.id!}',size: 200,),
+                const SizedBox(height: 8,),
+                CustomText(title:'${'Order Number:'.tr()} #${model.id!}',fontColor: greyColor,fontSize: 12),
+
+                const SizedBox(height: 24,),
+
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 1,
+                        child: CustomText(title: 'Address'.tr(),fontSize: 14,fontColor: Colors.black,)),
+                    Expanded(
+                        flex: 3,
+                        child: CustomText(textAlign: TextAlign.end,title: model.market?.address??'',fontSize: 14,fontColor: Colors.black,))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 1,
+                        child: CustomText(title: 'Name'.tr(),fontSize: 14,fontColor: Colors.black,)),
+                    Expanded(
+                        flex: 3,
+                        child: CustomText(textAlign: TextAlign.end,title: model.user?.user?.name??'',fontSize: 14,fontColor: Colors.black,))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 2,
+                        child: CustomText(title: 'Phone number'.tr(),fontSize: 14,fontColor: Colors.black,)),
+                    Expanded(
+                        flex: 4,
+                        child: CustomText(textAlign: TextAlign.end,title: '${model.user?.user?.phone_code??''}${model.user?.user?.phone??''}',fontSize: 14,fontColor:Colors.black,))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 2,
+                        child: CustomText(title: 'Booking date'.tr(),fontSize: 14,fontColor: Colors.black,)),
+                    Expanded(
+                        flex: 4,
+                        child: CustomText(textAlign: TextAlign.end,title: model.date??'',fontSize: 14,fontColor: Colors.black,))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 2,
+                        child: CustomText(title: 'Booking time'.tr(),fontSize: 14,fontColor:Colors.black,)),
+                    Expanded(
+                        flex: 4,
+                        child: CustomText(textAlign: TextAlign.end,title: model.time??'',fontSize: 14,fontColor:Colors.black,))
+                  ],
+                ),
+
+                const SizedBox(height: 16,),
+
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 2,
+                        child: CustomText(title: 'Start date'.tr(),fontSize: 14,fontColor:Colors.black,)),
+                    Expanded(
+                        flex: 3,
+                        child: CustomText(textAlign: TextAlign.end,title: model.order?.start_date??'It will be determined from the coach'.tr(),fontSize: 13,fontColor:Colors.black,))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+
+                Row(
+                  children: [
+
+                    Expanded(
+                        flex: 2,
+                        child: CustomText(title: 'End date'.tr(),fontSize: 14,fontColor:Colors.black,)),
+                    Expanded(
+                        flex: 3,
+                        child: CustomText(textAlign: TextAlign.end,title: model.order?.will_end_at??'It will be determined from the coach'.tr(),fontSize: 13,fontColor:Colors.black,))
+                  ],
+                ),
+
+                const SizedBox(height: 12,),
+                const Divider(color:inputBg,),
+                const SizedBox(height: 12,),
+                CoachServiceOrderItemPrint(model: model),
+                const SizedBox(height: 12,),
+
+                const Divider(color:inputBg,),
+                const SizedBox(height: 12,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(title: 'Total'.tr(),fontColor:Colors.black,fontSize: 13,),
+
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomText(title:CustomNumberFormat.format(model.grand_total??0),fontColor:Colors.black,fontSize: 13,),
+
+                        const SizedBox(width: 4,),
+                        const CustomSvgIcon(assetName: 'sar',width: 14,height: 14,color:Colors.black,),
+
+                      ],
+                    )
+                  ],
+                ),
+
+              ],),
+          ),
+        ),
+      ),
+    );
+
+  }
+}

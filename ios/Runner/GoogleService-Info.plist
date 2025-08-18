@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>668945487417-p9k2dr5vqi51q5e9cgn595evn8vp1ajs.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.668945487417-p9k2dr5vqi51q5e9cgn595evn8vp1ajs</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>668945487417-7avhoms48hcj55bm93le96jo9ubotr7e.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDxV49qBfzHOacA1gdXJGLWt5BFlmV-l2I</string>
+	<key>GCM_SENDER_ID</key>
+	<string>668945487417</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.apps.gymatvendor</string>
+	<key>PROJECT_ID</key>
+	<string>gymat-79f65</string>
+	<key>STORAGE_BUCKET</key>
+	<string>gymat-79f65.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:668945487417:ios:153072f1e966645f96dfe8</string>
+</dict>
+</plist>

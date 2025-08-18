@@ -1,0 +1,161 @@
+
+import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
+import 'package:gymatvendor/data/repositories/chat_repository.dart';
+import 'package:gymatvendor/data/repositories/general_setting_repository.dart';
+import 'package:gymatvendor/data/repositories/gym_home_repository.dart';
+import 'package:gymatvendor/data/repositories/payment_card_repository.dart';
+import 'package:gymatvendor/data/repositories/spa_home_repository.dart';
+import 'package:gymatvendor/presentations/chat_module/provider/audio_provider.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/provider/coach_order_provider.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/provider/livesession_provider.dart';
+import 'package:gymatvendor/presentations/followers_screen/provider/followers_provider.dart';
+import 'package:gymatvendor/presentations/gym_module/provider/gym_order_provider.dart';
+import 'package:gymatvendor/presentations/healthcub_spa_module/provider/spa_order_provider.dart';
+import 'package:gymatvendor/presentations/healthy_food_module/provider/food_order_provider.dart';
+import 'package:gymatvendor/presentations/map_search_screen/provider/MapProvider.dart';
+import 'package:gymatvendor/presentations/notification_screen/provider/notifications_provider.dart';
+import 'package:gymatvendor/presentations/payment_module/provider/payment_cards_provider.dart';
+import 'package:gymatvendor/presentations/shop_module/provider/shop_order_provider.dart';
+import 'package:gymatvendor/presentations/sport_field_module/provider/sports_field_order_provider.dart';
+import 'package:gymatvendor/presentations/sport_field_module/provider/sports_field_services_provider.dart';
+import 'package:gymatvendor/presentations/wallet_module/provider/wallet_provider.dart';
+import 'package:gymatvendor/socketProvider.dart';
+import 'package:gymatvendor/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'data/datasource/remote/dio/logging_interceptor.dart';
+import 'data/repositories/ad_repository.dart';
+import 'data/repositories/auth_repository.dart';
+import 'data/repositories/coach_home_repository.dart';
+import 'data/repositories/coach_livesession_repository.dart';
+import 'data/repositories/coach_order_repository.dart';
+import 'data/repositories/coach_service_repository.dart';
+import 'data/repositories/coach_workout_repository.dart';
+import 'data/repositories/followers_repository.dart';
+import 'data/repositories/food_home_repository.dart';
+import 'data/repositories/food_order_repository.dart';
+import 'data/repositories/growth_repository.dart';
+import 'data/repositories/gym_order_repository.dart';
+import 'data/repositories/gym_service_repository.dart';
+import 'data/repositories/health_club_spa_repository.dart';
+import 'data/repositories/health_food_repository.dart';
+import 'data/repositories/notification_repository.dart';
+import 'data/repositories/profile_repository.dart';
+import 'data/repositories/shop_home_repository.dart';
+import 'data/repositories/shop_order_repository.dart';
+import 'data/repositories/shop_repository.dart';
+import 'data/repositories/spa_order_repository.dart';
+import 'data/repositories/sports_field_home_repository.dart';
+import 'data/repositories/sports_field_order_repository.dart';
+import 'data/repositories/sports_field_repository.dart';
+import 'data/repositories/wallet_repository.dart';
+import 'presentations/ads_module/ad_provider/ad_provider.dart';
+import 'presentations/ask_question_module/provider/question_provider.dart';
+import 'presentations/auth_module/provider/auth_provider.dart';
+import 'presentations/chat_module/provider/chat_provider.dart';
+import 'presentations/coaches_workout_module/provider/coach_home_provider.dart';
+import 'presentations/coaches_workout_module/provider/coach_services_provider.dart';
+import 'presentations/coaches_workout_module/provider/workout_provider.dart';
+import 'presentations/growth_module/provider/provider.dart';
+import 'presentations/gym_module/provider/gym_home_provider.dart';
+import 'presentations/gym_module/provider/gym_services_provider.dart';
+import 'presentations/healthcub_spa_module/provider/healthyclub_spa_home_provider.dart';
+import 'presentations/healthcub_spa_module/provider/spa_services_provider.dart';
+import 'presentations/healthcub_spa_module/provider/specialist_provider.dart';
+import 'presentations/healthy_food_module/provider/healthy_food_home_provider.dart';
+import 'presentations/healthy_food_module/provider/healthy_food_services_provider.dart';
+import 'presentations/profile_module/provider/profile_provider.dart';
+import 'presentations/settings_module/general_settings_screen/provider/general_setting_provider.dart';
+import 'presentations/settings_module/language_screen/provider/language_provider.dart';
+import 'presentations/shop_module/provider/shop_home_provider.dart';
+import 'presentations/shop_module/provider/shop_services_provider.dart';
+import 'presentations/sport_field_module/provider/sports_field_home_provider.dart';
+final getIt = GetIt.instance;
+
+Future<void> init() async{
+  getIt.registerLazySingleton(() => ThemeProvider());
+  getIt.registerLazySingleton(() => AuthProvider());
+  getIt.registerLazySingleton(() => LanguageProvider());
+  getIt.registerLazySingleton(() => GeneralSettingProvider());
+  getIt.registerLazySingleton(() => MapProvider());
+  getIt.registerLazySingleton(() => AdProvider());
+  getIt.registerLazySingleton(() => QuestionProvider());
+  getIt.registerLazySingleton(() => GrowthProvider());
+  getIt.registerLazySingleton(() => SpecialistProvider());
+  getIt.registerLazySingleton(() => GymServicesProvider());
+  getIt.registerLazySingleton(() => WorkoutProvider());
+  getIt.registerLazySingleton(() => GymHomeProvider());
+  getIt.registerLazySingleton(() => ProfileProvider());
+  getIt.registerLazySingleton(() => HealthyClubSpaHomeProvider());
+  getIt.registerLazySingleton(() => HealthyFoodHomeProvider());
+  getIt.registerLazySingleton(() => CoachHomeProvider());
+  getIt.registerLazySingleton(() => ShopHomeProvider());
+  getIt.registerLazySingleton(() => SportsFieldHomeProvider());
+  getIt.registerLazySingleton(() => SpaServicesProvider());
+  getIt.registerLazySingleton(() => ChatProvider());
+  getIt.registerLazySingleton(() => HealthyFoodServicesProvider());
+  getIt.registerLazySingleton(() => SportsFieldServicesProvider());
+  getIt.registerLazySingleton(() => CoachServicesProvider());
+  getIt.registerLazySingleton(() => GymOrderProvider());
+  getIt.registerLazySingleton(() => SpaOrderProvider());
+  getIt.registerLazySingleton(() => SportsFieldOrderProvider());
+  getIt.registerLazySingleton(() => FoodOrderProvider());
+  getIt.registerLazySingleton(() => AudioProvider());
+  getIt.registerLazySingleton(() => FollowersProvider());
+  getIt.registerLazySingleton(() => LiveSessionProvider());
+  getIt.registerLazySingleton(() => CoachOrderProvider());
+  getIt.registerLazySingleton(() => NotificationsProvider());
+  getIt.registerLazySingleton(() => WalletProvider());
+  getIt.registerLazySingleton(() => PaymentCardsProvider());
+
+
+  /// model socket
+
+  getIt.registerLazySingleton(() => SocketProvider());
+
+
+  ///preference
+  final sharedPreferences = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton(() => sharedPreferences);
+  ///network
+  getIt.registerLazySingleton(() => Dio());
+  getIt.registerLazySingleton(() => LoggingInterceptor());
+  ///repositories
+  getIt.registerLazySingleton(() => AuthRepository());
+  getIt.registerLazySingleton(() => GymServiceRepository());
+  getIt.registerLazySingleton(() => HealthClubServiceRepository());
+  getIt.registerLazySingleton(() => HealthFoodServiceRepository());
+  getIt.registerLazySingleton(() => SportsFieldServiceRepository());
+  getIt.registerLazySingleton(() => ShopServiceRepository());
+  getIt.registerLazySingleton(() => ShopServicesProvider());
+  getIt.registerLazySingleton(() => AdRepository());
+  getIt.registerLazySingleton(() => CoachServiceRepository());
+  getIt.registerLazySingleton(() => CoachWorkoutRepository());
+  getIt.registerLazySingleton(() => GymOrderRepository());
+  getIt.registerLazySingleton(() => SpaOrderRepository());
+  getIt.registerLazySingleton(() => GymHomeRepository());
+  getIt.registerLazySingleton(() => SpaHomeRepository());
+  getIt.registerLazySingleton(() => SportsFieldOrderRepository());
+  getIt.registerLazySingleton(() => FoodOrderRepository());
+  getIt.registerLazySingleton(() => FoodHomeRepository());
+  getIt.registerLazySingleton(() => ShopOrderRepository());
+  getIt.registerLazySingleton(() => ShopOrderProvider());
+  getIt.registerLazySingleton(() => ShopHomeRepository());
+  getIt.registerLazySingleton(() => ChatRepository());
+  getIt.registerLazySingleton(() => GrowthRepository());
+  getIt.registerLazySingleton(() => SportsFieldHomeRepository());
+  getIt.registerLazySingleton(() => CoachHomeRepository());
+  getIt.registerLazySingleton(() => FollowersRepository());
+  getIt.registerLazySingleton(() => CoachLiveSessionRepository());
+  getIt.registerLazySingleton(() => CoachOrderRepository());
+  getIt.registerLazySingleton(() => NotificationsRepository());
+  getIt.registerLazySingleton(() => WalletRepository());
+  getIt.registerLazySingleton(() => GeneralSettingRepository());
+  getIt.registerLazySingleton(() => PaymentCardRepository());
+  getIt.registerLazySingleton(() => ProfileRepository());
+
+
+
+
+}

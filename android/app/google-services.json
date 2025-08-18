@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "668945487417",
+    "project_id": "gymat-79f65",
+    "storage_bucket": "gymat-79f65.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668945487417:android:23497112290015e796dfe8",
+        "android_client_info": {
+          "package_name": "com.apps.gymat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "668945487417-jhk2o70rpugtlphricqagkj24fbjn0ra.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.gymat",
+            "certificate_hash": "61fe2b8068abef93be5d7dd8fac3f838d6fa2392"
+          }
+        },
+        {
+          "client_id": "668945487417-8n2gg3cnfe7bhouhb45iietont587is2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgxbAZamRlb_7KLfeAVUzeeFoSlaaLZ1Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "668945487417-8n2gg3cnfe7bhouhb45iietont587is2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "668945487417-e61horn8cnkr59nq4t615c91rinnl4ku.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.apps.gymat"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668945487417:android:6ba1193da544912796dfe8",
+        "android_client_info": {
+          "package_name": "com.apps.gymatvendor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "668945487417-7avhoms48hcj55bm93le96jo9ubotr7e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apps.gymatvendor",
+            "certificate_hash": "61fe2b8068abef93be5d7dd8fac3f838d6fa2392"
+          }
+        },
+        {
+          "client_id": "668945487417-8n2gg3cnfe7bhouhb45iietont587is2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgxbAZamRlb_7KLfeAVUzeeFoSlaaLZ1Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "668945487417-8n2gg3cnfe7bhouhb45iietont587is2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "668945487417-e61horn8cnkr59nq4t615c91rinnl4ku.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.apps.gymat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
