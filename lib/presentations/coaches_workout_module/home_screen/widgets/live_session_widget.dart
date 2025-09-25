@@ -72,8 +72,7 @@ class LiveSessionWidget extends StatelessWidget {
           return SizedBox(
             height: !provider.isLoadingHomeLiveSession &&
                     provider.homeLiveSessionList.isNotEmpty
-                ? 240
-                : 36,
+                ? 160:36,
             child: provider.isLoadingHomeLiveSession
                 ? const LoadingIndicator(
                     width: 24,

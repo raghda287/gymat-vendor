@@ -7,6 +7,8 @@ import 'package:gymatvendor/data/repositories/gym_home_repository.dart';
 import 'package:gymatvendor/data/repositories/payment_card_repository.dart';
 import 'package:gymatvendor/data/repositories/spa_home_repository.dart';
 import 'package:gymatvendor/presentations/chat_module/provider/audio_provider.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/Provider/LiveSessionProvider2.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/Repository/LiveSessionRepository2.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/provider/coach_order_provider.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/provider/livesession_provider.dart';
 import 'package:gymatvendor/presentations/followers_screen/provider/followers_provider.dart';
@@ -108,7 +110,7 @@ Future<void> init() async{
   getIt.registerLazySingleton(() => NotificationsProvider());
   getIt.registerLazySingleton(() => WalletProvider());
   getIt.registerLazySingleton(() => PaymentCardsProvider());
-
+  getIt.registerLazySingleton(()=>LiveSessionProvider2(repository: getIt()));
 
   /// model socket
 
@@ -154,8 +156,6 @@ Future<void> init() async{
   getIt.registerLazySingleton(() => GeneralSettingRepository());
   getIt.registerLazySingleton(() => PaymentCardRepository());
   getIt.registerLazySingleton(() => ProfileRepository());
-
-
-
+  getIt.registerLazySingleton(()=>LiveSessionRepository2());
 
 }

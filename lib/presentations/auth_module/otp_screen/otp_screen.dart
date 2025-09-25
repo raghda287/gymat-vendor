@@ -192,7 +192,7 @@ class _OtpScreenState extends State<OtpScreen> {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: CustomButton(title: 'Agree and confirm'.tr(), onTap: (){
-                  provider.checkSmsCode();
+                  provider.confirmCode();
                 },fontSize: 16,fontWeight: FontWeight.bold,)
             ),
           ],

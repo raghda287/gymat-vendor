@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gymatvendor/core/app_colors/app_colors.dart';
 import 'package:gymatvendor/core/app_theme/theme.dart';
 import 'package:gymatvendor/core/navigator/navigator.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/CoursesScreen/courses_widget.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/coach_orders_screen/coachOrderScreen.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/home_screen/widgets/live_session_widget.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/provider/coach_home_provider.dart';
@@ -311,7 +312,7 @@ class _HealthClubSpaScreenState extends State<CoachesWorkoutHomeScreen> with Wid
                 const SizedBox(height: 12,),
                 const WorkoutWidget(),
                 const LiveSessionWidget(),
-
+                const CoursesWidget()
               ],
             ),
           ),

@@ -25,10 +25,10 @@ public class MainActivity extends FlutterActivity {
         super.onCreate(savedInstanceState);
 
         // Prevent screenshots and screen recording
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE
-        );
+//        getWindow().setFlags(
+//                WindowManager.LayoutParams.FLAG_SECURE,
+//                WindowManager.LayoutParams.FLAG_SECURE
+//        );
 
 
 

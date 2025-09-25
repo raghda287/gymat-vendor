@@ -904,6 +904,43 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  void confirmCode()async{
+    stopTimer();
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Logining...'.tr());
+    try{
+      ApiResponse apiResponse = await authRepository.confirmCode(countryCode!.dialCode!, phoneController.text, smsController.text);
+      await dialog.hide();
+      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
+        if(apiResponse.code==200){
+          Preferences preferences = Preferences();
+          UserModel userModel =
+          UserModel.fromJson(apiResponse.response!.data['data']);
+          preferences.saveUserData(userModel);
+          phoneController.clear();
+          account = null;
+          appleCredential = null;
+          SocketProvider socketProvider = getIt();
+          socketProvider.connectToSocket();
+
+          Widget? screen = NavigatorHandler().getHomeScreen();
+          if (screen != null) {
+            NavigatorHandler.pushAndRemoveUntil(screen);
+
+          }
+        } else if (apiResponse.code == 422) {
+          NavigatorHandler.pushReplacement(const UserTypeScreen());
+        } else {
+          CustomScaffoldMessanger.showScaffoledMessanger(
+              title: apiResponse.innerMessage ?? '');
+        }
+      }
+    }catch(e){
+      await dialog.hide();
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }
+  }
+
   void signUp() async {
     ProgressDialog dialog = createProgressDialog(context: navigatorKey.currentContext!, msg: 'Signing Up...'.tr());
 

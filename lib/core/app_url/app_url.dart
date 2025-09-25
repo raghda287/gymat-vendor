@@ -78,7 +78,6 @@ class AppUrls {
   static const String createVideoChatUrl = 'coach/createCall';
   static const String chatPaginationMessages = 'provider/market/paginateMessages';
   static const String userProfile = 'provider/market/getUser';
-
   static const String charts  = 'provider/market/chart';
   static const String getGoals = 'provider/market/getGoals';
   static const String saveGoals = 'provider/market/updateGoals';
@@ -93,7 +92,10 @@ class AppUrls {
   static const String profile = 'provider/profile';
   static const String paymentCards = 'provider/profile/paymentCards';
   static const String calculateAdPrice = 'provider/market/calculateAdPrice';
-
-
-
+  static const String confirmCode = 'provider/auth/provider-confirm-code';
+  static const String getCourses = 'provider/market/courses';
+  static const String addCourse = 'provider/market/courses';
+  static const String getCourseDetails ='provider/market/courses';
+  static const String createLiveSession = 'provider/market/sessions';
+  static const String deleteSession = 'provider/market/sessions';
 }

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gymatvendor/core/navigator/navigator.dart';
+import 'package:gymatvendor/data/models/course_details_response.dart';
+import 'package:gymatvendor/data/models/course_response.dart';
 import 'package:gymatvendor/data/models/service_model.dart';
-import 'package:gymatvendor/data/repositories/gym_service_repository.dart';
 import 'package:gymatvendor/injection.dart';
 import 'package:gymatvendor/main.dart';
 import 'package:gymatvendor/presentations/widgets/dialogs/progress_dialog.dart';
@@ -15,18 +18,23 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../core/app_theme/theme.dart';
 import '../../../data/models/api_response.dart';
 import '../../../data/models/department_model.dart';
-import '../../../data/models/subscribtion_model.dart';
 import '../../../data/repositories/coach_service_repository.dart';
 import '../../widgets/dialogs/scaffold_messanger.dart';
 import 'coach_home_provider.dart';
 
 class CoachServicesProvider with ChangeNotifier {
   ItemScrollController? serviceDepartmentItemController;
-
+  TextEditingController courseTitleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   List<DepartmentModel> departments = [];
   List<ServiceModel?> services = [];
   int selectedCategoryIndex = 0;
 
+  bool isSessionFree = false;
+
+  CourseResponse? courseResponse;
+  CourseDetailsResponse? courseDetailsResponse;
   //add edit service screen
   String? servicePhotoPath;
   CoachServiceRepository repository = getIt();
@@ -37,7 +45,6 @@ class CoachServicesProvider with ChangeNotifier {
   bool isLoadingDepartment = false;
   bool isLoadingMoreService = false;
   CancelToken? serviceCancelToken;
-
   void init() {
     isLoading = true;
     selectedCategoryIndex = 0;
@@ -64,6 +71,9 @@ class CoachServicesProvider with ChangeNotifier {
   }
 
 
+  void updateIsFree(bool value){
+    isSessionFree = value;
+  }
 
   void pickImage(ImageSource source,) async
   {
@@ -479,8 +489,144 @@ class CoachServicesProvider with ChangeNotifier {
     }
   }
 
+  void getCourses()async{
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait...'.tr());
+    await dialog.show();
+    try{
+      ApiResponse apiResponse = await repository.getCourses();
+      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
+        courseResponse = CourseResponse.fromJson(apiResponse.response!.data);
+        await dialog.hide();
+        notifyListeners();
+      }
+    }catch(e){
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }
+  }
+
+  void clearCourses(){
+    courseResponse = null;
+  }
+  void addCourse() async {
+    if (courseTitleController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        priceController.text.isEmpty) {
+      CustomScaffoldMessanger.showScaffoledMessanger(
+          title: 'Please fill all fields'.tr());
+      return;
+    }
+
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
+    await dialog.show();
+
+    try {
+      ApiResponse apiResponse = await repository.addCourse(
+          courseTitleController.text,
+          descriptionController.text,
+          priceController.text);
+
+      if (apiResponse.response!.statusCode == 200 ||
+          apiResponse.response!.statusCode == 201) {
+        if (apiResponse.response!.data['message'] == "done successfully") {
+          CustomScaffoldMessanger.showScaffoledMessanger(
+              title: 'Course added successfully'.tr());
+        } else {
+          CustomScaffoldMessanger.showScaffoledMessanger(
+              title: apiResponse.response!.data['message']);
+        }
+      }
+    } catch (e) {
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    } finally {
+      await dialog.hide();
+    }
+  }
 
 
+  void getCourseDetails(int courseId)async{
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
+    await dialog.show();
+    try{
+      ApiResponse apiResponse = await repository.getCourseDetails(courseId);
+      if(apiResponse.response!.statusCode==200||apiResponse.response!.statusCode==201){
+        if(apiResponse.response!.data['message']=="done successfully"||apiResponse.response!.data['message']=="تم بنجاح"){
+          courseDetailsResponse = CourseDetailsResponse.fromJson(apiResponse.response!.data);
+        }
+      }
+      await dialog.hide();
+      notifyListeners();
+    }catch(e){
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }
+  }
+
+  void uploadeSessionVideo(int courseId,String fileName,File file)async{
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
+    try{
+      await dialog.show();
+      ApiResponse apiResponse = await repository.uploadSessionVideo(courseId, fileName, fileName, isSessionFree,
+          DateFormat('yyyy-MM-dd').format(DateTime.now()),
+          "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}",
+          "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}"
+          ,"recorded", file);
+      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
+        if(apiResponse.response!.data['message'] == "done successfully"){
+          if(dialog.isShowing()){
+            await dialog.hide();
+          }
+          CustomScaffoldMessanger.showScaffoledMessanger(
+              title: "Session created successfully");
+          Navigator.pop(navigatorKey.currentContext!);
+        }else{
+          CustomScaffoldMessanger.showScaffoledMessanger(
+              title: "Something went wrong");
+        }
+      }else{
+        CustomScaffoldMessanger.showScaffoledMessanger(
+            title: "Something went wrong");
+      }
+    }catch (e) {
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    } finally {
+      if (dialog.isShowing() && navigatorKey.currentContext != null) {
+        await dialog.hide();
+      }
+    }
+  }
+
+  void deleteSession(int sessionId)async{
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
+    try{
+      await dialog.show();
+      ApiResponse apiResponse = await repository.deleteSession(sessionId);
+      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
+        if(apiResponse.response!.data['message']=="Session Deleted Successfully"){
+          if(dialog.isShowing()){
+            await dialog.hide();
+          }
+
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Session Deleted Successfully");
+          Navigator.pop(navigatorKey.currentContext!);
+        }else{
+          if(dialog.isShowing()){
+            await dialog.hide();
+          }
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Something went wrong");
+        }
+      }
+    }catch(e){
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }finally{
+      if(dialog.isShowing()){
+        await dialog.hide();
+      }
+    }
+  }
 
 
 }

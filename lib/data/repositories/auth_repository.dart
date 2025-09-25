@@ -61,6 +61,21 @@ class AuthRepository {
 
   }
 
+  Future<ApiResponse> confirmCode(String phoneCode,String phone,String code)async{
+    try{
+      FormData formData = FormData.fromMap({
+        'phone_code':phoneCode,
+        'phone':phone,
+        'code':code
+      });
+      DioClient dioClient = DioClient();
+      Response response = await dioClient.post(AppUrls.confirmCode,formData: formData);
+      return ApiResponse.withSuccess(response);
+    }catch(e){
+      return ApiResponse.withError(ApiErrorHandler.handleError(e));
+    }
+  }
+
   Future<ApiResponse> signUp(String name,String email,String phoneCode,String phone,String gender,List<String> categoryIds,String? social_type,String? social_id) async{
     try{
       var formData = FormData.fromMap({
