@@ -357,19 +357,16 @@ class AuthProvider with ChangeNotifier {
     appleCredential = null;
   }
 
-  void checkPhoneNumber() {
+  void checkPhoneNumber(BuildContext context) {
     String phone = phoneController.text.trim();
 
     if (countryCode!.dialCode == '+966') {
       if (phone.length == 9 && phone.startsWith('5')) {
-        NavigatorHandler.push(OtpScreen(
-          phone: '${countryCode?.dialCode}$phone',
-        ));
+        login(context);
       } else if (phone.length == 10 && phone.startsWith('05')) {
         if (phone.startsWith("0")) {
           phone = phone.replaceFirst('0', '');
-          NavigatorHandler.push(
-              OtpScreen(phone: '${countryCode?.dialCode}$phone'));
+          login(context);
         } else {
           CustomScaffoldMessanger.showScaffoledMessanger(
               title:
@@ -384,8 +381,7 @@ class AuthProvider with ChangeNotifier {
       }
     } else {
       if (phone.length > 3) {
-        NavigatorHandler.push(
-            OtpScreen(phone: '${countryCode?.dialCode}$phone'));
+        login(context);
       } else {
         CustomScaffoldMessanger.showScaffoledMessanger(
             title: 'Invalid phone number'.tr());
@@ -414,11 +410,11 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  void checkSmsCode() {
+  void checkSmsCode(BuildContext context) {
     String smsCode = smsController.text.trim();
     if (smsCode.length == 4) {
       if (account == null && appleCredential == null) {
-        login();
+        login(context);
       } else {
         NavigatorHandler.pushReplacement(const UserTypeScreen());
       }
@@ -861,7 +857,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  void login() async {
+  void login(BuildContext context) async {
     stopTimer();
 
     ProgressDialog dialog = createProgressDialog(
@@ -875,26 +871,26 @@ class AuthProvider with ChangeNotifier {
 
       if (response.response != null && response.response!.statusCode == 200) {
         if (response.code == 200) {
-          Preferences preferences = Preferences();
-          UserModel userModel =
-              UserModel.fromJson(response.response!.data['data']);
-          preferences.saveUserData(userModel);
-          phoneController.clear();
           account = null;
           appleCredential = null;
           SocketProvider socketProvider = getIt();
           socketProvider.connectToSocket();
-
-          Widget? screen = NavigatorHandler().getHomeScreen();
-          if (screen != null) {
-            NavigatorHandler.pushAndRemoveUntil(screen);
-
+          phone = phoneController.text.trim();
+          if(response.response!.data['message']=="The code has been sent successfully."|| response.response!.data['message']=="تم ارسال الكود بنجاح"){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>OtpScreen(phone: phone!)));
+            phoneController.clear();
+          }
+          else{
+            CustomScaffoldMessanger.showScaffoledMessanger(
+                title: response.response!.data['message']);
+            phoneController.clear();
           }
         } else if (response.code == 422) {
           NavigatorHandler.pushReplacement(const UserTypeScreen());
         } else {
           CustomScaffoldMessanger.showScaffoledMessanger(
               title: response.innerMessage ?? '');
+          phoneController.clear();
         }
       }
     } catch (e) {
@@ -909,7 +905,7 @@ class AuthProvider with ChangeNotifier {
     ProgressDialog dialog = createProgressDialog(
         context: navigatorKey.currentContext!, msg: 'Logining...'.tr());
     try{
-      ApiResponse apiResponse = await authRepository.confirmCode(countryCode!.dialCode!, phoneController.text, smsController.text);
+      ApiResponse apiResponse = await authRepository.confirmCode(countryCode!.dialCode!, phone!, smsController.text);
       await dialog.hide();
       if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
         if(apiResponse.code==200){
@@ -943,7 +939,9 @@ class AuthProvider with ChangeNotifier {
 
   void signUp() async {
     ProgressDialog dialog = createProgressDialog(context: navigatorKey.currentContext!, msg: 'Signing Up...'.tr());
-
+    String name =  providerNameController.text.trim();
+    String code = countryCode!.dialCode!;
+    String phone = phoneController.text.trim();
     try {
       await dialog.show();
 
@@ -964,40 +962,47 @@ class AuthProvider with ChangeNotifier {
       }
 
       ApiResponse response = await authRepository.signUp(
-          providerNameController.text.trim(),
+         name,
           providerEmailController.text.trim(),
-          countryCode!.dialCode!,
-          phoneController.text.trim(),
+          code,
+          phone,
           gender!,
           categoryIds,
           socialType,
           socialId);
-      await dialog.hide();
 
       if (response.response != null && response.response!.statusCode == 200) {
         if (response.code == 200) {
-          Preferences preferences = Preferences();
-          UserModel userModel = UserModel.fromJson(response.response!.data['data']);
+          // Preferences preferences = Preferences();
+          // UserModel userModel = UserModel.fromJson(response.response!.data['data']);
+          //
+          // preferences.saveUserData(userModel);
+          // userType.clear();
+          // gender = null;
+          // phoneController.clear();
+          // providerNameController.clear();
+          // providerEmailController.clear();
+          // account = null;
+          // appleCredential = null;
+          // SocketProvider socketProvider = getIt();
+          // socketProvider.connectToSocket();
+          //
+          // Widget? screen = NavigatorHandler().getHomeScreen();
+          // if (screen != null) {
+          //   NavigatorHandler.pushAndRemoveUntil(screen);
+          // }
 
-          preferences.saveUserData(userModel);
-          userType.clear();
-          gender = null;
-          phoneController.clear();
-          providerNameController.clear();
-          providerEmailController.clear();
-          account = null;
-          appleCredential = null;
-          SocketProvider socketProvider = getIt();
-          socketProvider.connectToSocket();
-
-          Widget? screen = NavigatorHandler().getHomeScreen();
-          if (screen != null) {
-            NavigatorHandler.pushAndRemoveUntil(screen);
-          }
+          await dialog.hide();
+          NavigatorHandler.push(OtpScreen(phone: phone!));
         } else {
+          await dialog.hide();
           CustomScaffoldMessanger.showScaffoledMessanger(
               title: response.innerMessage ?? '');
         }
+      } else {
+        await dialog.hide();
+        CustomScaffoldMessanger.showScaffoledMessanger(
+            title: response.innerMessage ?? 'Something went wrong'.tr());
       }
     } catch (e) {
       await dialog.hide();

@@ -83,7 +83,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: CustomButton(title: 'Next'.tr(), onTap: (){
-                  loginProvider.checkPhoneNumber();
+                  loginProvider.checkPhoneNumber(context);
                 },fontSize: 16,fontWeight: FontWeight.bold,)
             ),
             const SizedBox(height: 24,),

@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: CustomButton(title: 'Login'.tr(), onTap: (){
         
               loginProvider.resetSocialAccount();
-              loginProvider.checkPhoneNumber();
+              loginProvider.checkPhoneNumber(context);
             },fontSize: 16,fontWeight: FontWeight.bold,)
           ),
           const SizedBox(height: 24,),
