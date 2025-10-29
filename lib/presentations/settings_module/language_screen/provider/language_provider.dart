@@ -21,7 +21,6 @@ class LanguageProvider with ChangeNotifier{
 
   void saveLanguage(int index) {
     navigatorKey.currentContext!.setLocale(Locale(appLanguage[index].languageCode,appLanguage[index].countryCode));
-    notifyListeners();
     UserModel? userModel = Preferences().getUserData();
     if(userModel!=null){
       String type = userModel.providerModel!.mainAccount!.category.type!;
@@ -30,6 +29,7 @@ class LanguageProvider with ChangeNotifier{
         gymHomeProvider.getDepartments();
       }
     }
+    notifyListeners();
 
   }
 

@@ -98,4 +98,8 @@ class AppUrls {
   static const String getCourseDetails ='provider/market/courses';
   static const String createLiveSession = 'provider/market/sessions';
   static const String deleteSession = 'provider/market/sessions';
+  static const String deleteCourse = 'provider/market/courses';
+  static const String joinLiveSession ='provider/market/join/session';
+  static const String generateChatToken = 'provider/market/generate/rtm/token';
+  static const String comment = 'provider/market/comments';
 }

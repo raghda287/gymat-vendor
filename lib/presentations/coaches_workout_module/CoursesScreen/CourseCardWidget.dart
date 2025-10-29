@@ -10,7 +10,8 @@ import '../../../core/app_theme/theme.dart';
 class CourseCardWidget extends StatelessWidget{
   double width;
   CourseData courseData;
-  CourseCardWidget({super.key,required this.width,required this.courseData});
+  VoidCallback deleteCourse;
+  CourseCardWidget({super.key,required this.width,required this.courseData,required this.deleteCourse});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,7 +36,11 @@ class CourseCardWidget extends StatelessWidget{
                 CustomText(title: courseData.title,fontSize: 18,fontColor: Colors.white,fontWeight: FontWeight.bold,),
                 CustomText(title: courseData.description,fontSize: 15,fontColor: Colors.white,fontWeight: FontWeight.bold,)
               ],
-            ))
+            )),
+            InkWell(
+              child: const Icon(Icons.delete_forever,size: 25,color: Colors.white,),
+              onTap: deleteCourse,
+            )
           ],
         ),
       ),

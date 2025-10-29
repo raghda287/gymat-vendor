@@ -4,6 +4,7 @@ import 'package:gymatvendor/core/navigator/navigator.dart';
 import 'package:gymatvendor/presentations/settings_module/language_screen/widgets/language_item.dart';
 import 'package:gymatvendor/presentations/widgets/custom_button/custom_button.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 
 import '../../../core/app_colors/app_colors.dart';
 import '../../../core/app_theme/theme.dart';
@@ -46,6 +47,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
             Expanded(child: ListView.builder(itemBuilder: (context,index){
               return LanguageItem( selected: provider.selectedIndex == index,onTap: (){
                 provider.saveLanguage(index);
+                Restart.restartApp(
+                  notificationTitle: 'Restarting App',
+                  notificationBody: 'Please tap here to open the app again.'
+                );
               }, model: appLanguage[index],);
             },itemCount:appLanguage.length,shrinkWrap: true,)),
           ],

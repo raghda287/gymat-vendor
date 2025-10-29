@@ -35,16 +35,15 @@ class CoachServicesProvider with ChangeNotifier {
 
   CourseResponse? courseResponse;
   CourseDetailsResponse? courseDetailsResponse;
-  //add edit service screen
   String? servicePhotoPath;
   CoachServiceRepository repository = getIt();
   bool isLoading = true;
-
-  // service pagination
   int serviceCurrentPage = 1;
   bool isLoadingDepartment = false;
   bool isLoadingMoreService = false;
   CancelToken? serviceCancelToken;
+  File? uploadCourseImage;
+  bool isCourseFree = false;
   void init() {
     isLoading = true;
     selectedCategoryIndex = 0;
@@ -62,6 +61,14 @@ class CoachServicesProvider with ChangeNotifier {
     getDepartments(null);
   }
 
+  void updateUploadeCourseImage(File file){
+    uploadCourseImage = file;
+    notifyListeners();
+  }
+  void updateIsCourseFree(bool value){
+    isCourseFree = value;
+    notifyListeners();
+  }
 
 
   void updateSelectedCategory(index) {
@@ -510,10 +517,10 @@ class CoachServicesProvider with ChangeNotifier {
   }
   void addCourse() async {
     if (courseTitleController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        priceController.text.isEmpty) {
+        descriptionController.text.isEmpty) {
       CustomScaffoldMessanger.showScaffoledMessanger(
           title: 'Please fill all fields'.tr());
+      Navigator.pop(navigatorKey.currentContext!);
       return;
     }
 
@@ -525,13 +532,14 @@ class CoachServicesProvider with ChangeNotifier {
       ApiResponse apiResponse = await repository.addCourse(
           courseTitleController.text,
           descriptionController.text,
-          priceController.text);
+          priceController.text.isEmpty?0.0:double.parse(priceController.text),uploadCourseImage==null?"":uploadCourseImage!.path,isCourseFree);
 
       if (apiResponse.response!.statusCode == 200 ||
           apiResponse.response!.statusCode == 201) {
-        if (apiResponse.response!.data['message'] == "done successfully") {
+        if (apiResponse.response!.data['message'] == "done successfully"|| apiResponse.response!.data['message']=="تم بنجاح") {
           CustomScaffoldMessanger.showScaffoledMessanger(
               title: 'Course added successfully'.tr());
+          Navigator.pop(navigatorKey.currentContext!);
         } else {
           CustomScaffoldMessanger.showScaffoledMessanger(
               title: apiResponse.response!.data['message']);
@@ -574,7 +582,7 @@ class CoachServicesProvider with ChangeNotifier {
           "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}"
           ,"recorded", file);
       if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
-        if(apiResponse.response!.data['message'] == "done successfully"){
+        if(apiResponse.response!.data['message'] == "done successfully" || apiResponse.response!.data['message']=="تم بنجاح"){
           if(dialog.isShowing()){
             await dialog.hide();
           }
@@ -583,11 +591,11 @@ class CoachServicesProvider with ChangeNotifier {
           Navigator.pop(navigatorKey.currentContext!);
         }else{
           CustomScaffoldMessanger.showScaffoledMessanger(
-              title: "Something went wrong");
+              title: "Something went wrong".tr());
         }
       }else{
         CustomScaffoldMessanger.showScaffoledMessanger(
-            title: "Something went wrong");
+            title: "Something went wrong".tr());
       }
     }catch (e) {
       CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
@@ -598,25 +606,24 @@ class CoachServicesProvider with ChangeNotifier {
     }
   }
 
-  void deleteSession(int sessionId)async{
+  Future<void> deleteSession(int sessionId)async{
     ProgressDialog dialog = createProgressDialog(
         context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
     try{
       await dialog.show();
       ApiResponse apiResponse = await repository.deleteSession(sessionId);
       if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
-        if(apiResponse.response!.data['message']=="Session Deleted Successfully"){
+        if(apiResponse.response!.data['message']=="Session Deleted Successfully"|| apiResponse.response!.data['message']=="تم حذف المحاضرة بنجاح"){
           if(dialog.isShowing()){
             await dialog.hide();
           }
 
-          CustomScaffoldMessanger.showScaffoledMessanger(title: "Session Deleted Successfully");
-          Navigator.pop(navigatorKey.currentContext!);
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Session Deleted Successfully".tr());
         }else{
           if(dialog.isShowing()){
             await dialog.hide();
           }
-          CustomScaffoldMessanger.showScaffoledMessanger(title: "Something went wrong");
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Something went wrong".tr());
         }
       }
     }catch(e){
@@ -628,5 +635,30 @@ class CoachServicesProvider with ChangeNotifier {
     }
   }
 
-
+  Future<void> deleteCourse(int courseId)async{
+    ProgressDialog dialog = createProgressDialog(
+        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
+    try{
+      await dialog.show();
+      ApiResponse apiResponse = await repository.deleteCourse(courseId);
+      if(apiResponse.response!.statusCode==200||apiResponse.response!.statusCode==201){
+        if(apiResponse.response!.data['message']=="done successfully"||apiResponse.response!.data['message']=="تم بنجاح"){
+          if(dialog.isShowing()){
+            await dialog.hide();
+          }
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Course deleted successfully".tr());
+        }else{
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "Something went wrong".tr());
+        }
+      }else{
+        CustomScaffoldMessanger.showScaffoledMessanger(title: "Something went wrong".tr());
+      }
+    }catch(e){
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }finally{
+      if(dialog.isShowing()){
+        await dialog.hide();
+      }
+    }
+  }
 }

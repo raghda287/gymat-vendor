@@ -216,7 +216,7 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
                     ),
 
                     const SizedBox(height: 50,),
-                    CustomButton(title:"Create Session",fontSize: 20,fontWeight: FontWeight.bold, onTap: (){
+                    CustomButton(title:"Create Session".tr(),fontSize: 20,fontWeight: FontWeight.bold, onTap: (){
                       provider.createLiveSession(widget.courseId,"schedule");
                     })
                   ],
@@ -236,6 +236,7 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
   ) async {
     DateTime? selectedDate = await showDatePicker(
       context: context,
+      locale: const Locale('en','US'),
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
@@ -258,7 +259,7 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
       },
     );
     if (selectedDate != null) {
-      final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+      final formattedDate = DateFormat('yyyy-MM-dd', 'en_US').format(selectedDate);
       provider.updatedSelectedDate(formattedDate);
     }
   }
@@ -284,7 +285,7 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                    CustomText(
-                    title: "Choose Session Date",
+                    title: "Choose Session Date".tr(),
                     fontSize: 15,
                     fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
                     fontWeight: FontWeight.w700,
@@ -297,17 +298,20 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
                       children: [
                         const Icon(Icons.add, size: 30, color: mainColor),
                         CustomText(
-                          title: "Start instant",
+                          title: "Start instant".tr(),
                           fontSize: 15,
                           fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
-                    onTap: (){
-                      _showAcceptanceDialog(context,provider);
+                    onTap: ()async{
+                      Navigator.pop(context);
+                     await _showAcceptanceDialog(context,provider);
+
                     },
                   ),
+                  const SizedBox(height: 20,),
 
                   InkWell(
                     child:  Row(
@@ -315,15 +319,17 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
                       children: [
                         const Icon(Icons.calendar_month, size: 30, color: mainColor),
                         CustomText(
-                          title: "Schedule Meeting",
+                          title: "Schedule Meeting".tr(),
                           fontSize: 15,
                           fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
-                    onTap: () {
-                      _showPicker(context, provider);
+                    onTap: () async{
+                      await _showPicker(context, provider).then((_){
+                        Navigator.pop(context);
+                      });
                     },
                   ),
                 ],
@@ -350,7 +356,7 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
     }
   }
 
-  void _showAcceptanceDialog(BuildContext context, LiveSessionProvider2 provider) {
+  Future<void> _showAcceptanceDialog(BuildContext context, LiveSessionProvider2 provider) async {
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content:  CustomText(title: "do you want it free".tr()),

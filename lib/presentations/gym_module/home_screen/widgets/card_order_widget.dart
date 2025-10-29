@@ -28,24 +28,38 @@ class CardOrderWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: SizedBox(
             width: 90,
-            height:60,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CustomText(
-                  title: title,
-                  fontSize: 11,
-                  fontColor: AppTheme.isDarkMode() ? Colors.white : mainColor,
+                Flexible(
+                  child: CustomText(
+                    title: title,
+                    fontSize: 11,
+                    fontColor: AppTheme.isDarkMode() ? Colors.white : mainColor,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                  ),
                 ),
-                CustomText(
-                  title: orderCount,
-                  fontSize: 16,
-                  fontColor: AppTheme.isDarkMode() ? mainColor : Colors.black,
+                const SizedBox(height: 4),
+                Flexible(
+                  child: CustomText(
+                    title: orderCount,
+                    fontSize: 16,
+                    fontColor: AppTheme.isDarkMode() ? mainColor : Colors.black,
+                    textAlign: TextAlign.center,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                CustomText(
-                  title: 'Booking'.tr(),
-                  fontSize: 11,
-                  fontColor: greyColor,
+                const SizedBox(height: 4),
+                Flexible(
+                  child: CustomText(
+                    title: 'Booking'.tr(),
+                    fontSize: 11,
+                    fontColor: greyColor,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
                 )
               ],
             ),

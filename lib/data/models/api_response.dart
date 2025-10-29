@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 class ApiResponse {
   final Response? response;
-  final int code;
+  final int? code;
   final dynamic error;
   final String? innerMessage;
 

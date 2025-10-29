@@ -27,10 +27,10 @@ class CoursesScreen extends StatefulWidget {
 
 class CoursesScreenState extends State<CoursesScreen> {
   @override
-  void initState() {
+  void initState(){
+    super.initState();
     CoachServicesProvider provider = getIt();
     provider.getCourses();
-    super.initState();
   }
 
   @override
@@ -81,17 +81,25 @@ class CoursesScreenState extends State<CoursesScreen> {
                             description: "",
                             id: 0,
                             title: "",
+                            image: "",
+                            isFree: false
                           )
                               : provider.courseResponse!.data[index];
                           return InkWell(
                             child: CourseCardWidget(
                               width: Dimens.width,
                               courseData: courseData,
+                              deleteCourse: ()async{
+                                _showDeleteDialog(context,provider,courseData.id);
+                              },
                             ),
                             onTap: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context){
                                 return CourseDetailsScreen(courseId: courseData.id);
                               }));
+                            },
+                            onLongPress: ()async{
+                              _showDeleteDialog(context,provider,courseData.id);
                             },
                           );
                         },
@@ -103,17 +111,20 @@ class CoursesScreenState extends State<CoursesScreen> {
                             ? 0
                             : provider.courseResponse!.data.length,
                       )),
+                      const SizedBox(height: 10,),
                       CustomButton(
                         title: "Add Course".tr(),
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async{
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) {
                                 return AddCourseScreen();
                               },
                             ),
-                          );
+                          ).then((value){
+                            provider.getCourses();
+                          });
                         },
                       ),
                     ],
@@ -123,5 +134,23 @@ class CoursesScreenState extends State<CoursesScreen> {
         },
       ),
     );
+  }
+
+  void _showDeleteDialog(BuildContext context, CoachServicesProvider provider, int courseId) {
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content:  CustomText(title: "do you want to delete this course".tr()),
+        actions: [
+          TextButton(onPressed: ()async{
+            await provider.deleteCourse(courseId);
+            provider.getCourses();
+            Navigator.pop(context);
+          }, child:  CustomText(title: "yes".tr(),)),
+          TextButton(onPressed: (){
+            Navigator.pop(context);
+          }, child:  CustomText(title: "no".tr(),)),
+        ],
+      );
+    });
   }
 }

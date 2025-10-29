@@ -673,5 +673,15 @@
   "no": "لا",
   "do you want to delete this session": "هل تريد مسح هذه المحاضرة",
   "Add Course": "إضافة كورس",
-  "Course Title": "عنوان الكورس"
+  "Course Title": "عنوان الكورس",
+  "Payed": "مدفوع",
+  "Start instant": "بدأ فوري",
+  "Schedule Meeting": "جدولة اجتماع",
+  "recorded": "مسجلة",
+  "Something went wrong": "حدث خطأ ما",
+  "Course deleted successfully": "تم حذف الكورس بنجاح",
+  "Session Deleted Successfully": "تم حذف المحاضرة بنجاح",
+  "do you want to delete this course": "هل تريد حذف هذا الكورس",
+  "Write a comment": "اكتب تعليقا",
+  "Choose Session Date": "اختار تاريخ المحاضرة"
 }

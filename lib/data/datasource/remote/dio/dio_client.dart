@@ -28,6 +28,7 @@ class DioClient {
   Future<Response> get(
     String uri, {
     Map<String, dynamic>? queryParameters, CancelToken? cancelToken,
+        FormData? formData,
   }) async {
     try {
       UserModel? userModel = Preferences().getUserData();
@@ -46,7 +47,8 @@ class DioClient {
       var response = await dio.get(
         uri,
         queryParameters: queryParameters,
-        cancelToken: cancelToken
+        cancelToken: cancelToken,
+        data: formData??FormData.fromMap({})
       );
       return response;
     } on SocketException catch (e) {

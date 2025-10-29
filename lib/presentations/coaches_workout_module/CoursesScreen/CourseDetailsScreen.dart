@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gymatvendor/core/dimens/dimens.dart';
@@ -9,6 +8,7 @@ import 'package:gymatvendor/injection.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/CoursesScreen/SessionCard.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/AddLiveSession.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/Provider/LiveSessionProvider2.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/SessionScreen.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/provider/coach_services_provider.dart';
 import 'package:gymatvendor/presentations/widgets/custom_button/custom_button.dart';
 import 'package:gymatvendor/presentations/widgets/custom_text/custom_text.dart';
@@ -79,41 +79,52 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   body: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(
+                        width: Dimens.width,
+                        height: Dimens.height * 0.2,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            provider.courseDetailsResponse!.data.image,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                           CustomText(
+                          CustomText(
                             title: "Price:".tr(),
                             fontSize: 20,
-                            fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                            fontColor:
+                                AppTheme.isDarkMode()
+                                    ? greyColor
+                                    : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                           CustomText(
                             title:
                                 "${provider.courseDetailsResponse!.data.price} ${"SAR".tr()}",
                             fontSize: 20,
-                            fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                            fontColor:
+                                AppTheme.isDarkMode()
+                                    ? greyColor
+                                    : Colors.black,
                           ),
                         ],
                       ),
 
                       const SizedBox(height: 20),
 
-                       CustomText(
+                      CustomText(
                         title: "Course Description".tr(),
                         fontSize: 20,
-                        fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                        fontColor:
+                            AppTheme.isDarkMode() ? greyColor : Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                       const SizedBox(height: 15),
-
-                      CustomText(
-                        title: provider.courseDetailsResponse!.data.title,
-                        fontSize: 17,
-                        fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      const SizedBox(height: 5),
                       CustomText(
                         title: provider.courseDetailsResponse!.data.description,
                         fontSize: 15,
@@ -123,9 +134,12 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       const SizedBox(height: 20),
 
                       provider.courseDetailsResponse!.data.sessions.isNotEmpty
-                          ?  CustomText(
+                          ? CustomText(
                             title: "Sessions".tr(),
-                            fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                            fontColor:
+                                AppTheme.isDarkMode()
+                                    ? greyColor
+                                    : Colors.black,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           )
@@ -143,9 +157,43 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                 session: currentSesssion,
                                 width: Dimens.width,
                                 borderRadius: 8,
+                                deleteSession: () {
+                                  _showDeleteDilaog(
+                                    context,
+                                    provider,
+                                    currentSesssion.id,
+                                  );
+                                },
                               ),
-                              onLongPress: (){
-                                _showDeleteDilaog(context,provider,currentSesssion.id);
+                              onLongPress: () {
+                                _showDeleteDilaog(
+                                  context,
+                                  provider,
+                                  currentSesssion.id,
+                                );
+                              },
+                              onTap: () {
+                                if (currentSesssion.type == "live") {
+                                  final provider =
+                                      getIt<LiveSessionProvider2>();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              ChangeNotifierProvider.value(
+                                                value: provider,
+                                                child: SessionScreen(
+                                                  channelName:
+                                                      currentSesssion
+                                                          .channelName,
+                                                  sessionId: currentSesssion.id,
+                                                  userId: provider.userSessionId??0,
+                                                ),
+                                              ),
+                                    ),
+                                  );
+                                }
                               },
                             );
                           },
@@ -167,7 +215,7 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         title: "Add New Session".tr(),
                         fontWeight: FontWeight.bold,
                         onTap: () {
-                          _showDialog(context,provider);
+                          _showDialog(context, provider);
                         },
                       ),
                     ],
@@ -190,44 +238,46 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
             width: Dimens.width,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: AppTheme.isDarkMode()?dark:Colors.white,
+              color: AppTheme.isDarkMode() ? dark : Colors.white,
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 20,
                 children: [
-                   CustomText(
+                  CustomText(
                     title: "Choose Session Type".tr(),
                     fontSize: 15,
-                    fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                    fontColor: AppTheme.isDarkMode() ? greyColor : Colors.black,
                     fontWeight: FontWeight.w700,
                   ),
 
                   const SizedBox(height: 20),
-                     InkWell(
-                       child: Row(
-                         spacing: 5,
-                         children: [
-                           const Icon(
-                             Icons.video_call_rounded,
-                             size: 40,
-                             color: mainColor,
-                           ),
-                           CustomText(
-                             title: "Upload Video".tr(),
-                             fontSize: 20,
-                             fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
-                             fontWeight: FontWeight.w500,
-                           ),
-                         ],
-                       ),
-                       onTap: (){
-                         _showAccecptanceDialog(context,provider);
-                       },
-                     ),
+                  InkWell(
+                    child: Row(
+                      spacing: 5,
+                      children: [
+                        const Icon(
+                          Icons.video_call_rounded,
+                          size: 40,
+                          color: mainColor,
+                        ),
+                        CustomText(
+                          title: "Upload Video".tr(),
+                          fontSize: 20,
+                          fontColor:
+                              AppTheme.isDarkMode() ? greyColor : Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showAccecptanceDialog(context, provider);
+                    },
+                  ),
 
                   InkWell(
                     child: Row(
@@ -239,27 +289,33 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           width: 30,
                           height: 30,
                         ),
-                         CustomText(
+                        CustomText(
                           title: "Open Live Session".tr(),
                           fontSize: 20,
-                          fontColor: AppTheme.isDarkMode()?greyColor:Colors.black,
+                          fontColor:
+                              AppTheme.isDarkMode() ? greyColor : Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
                     onTap: () {
                       final provider = getIt<LiveSessionProvider2>();
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) =>ChangeNotifierProvider.value(
+                              (context) => ChangeNotifierProvider.value(
                                 value: provider,
                                 child: AddLiveSessionScreen(
                                   courseId: widget.courseId,
-                                ),)
+                                ),
+                              ),
                         ),
-                      );
+                      ).then((value) {
+                        CoachServicesProvider coachProvider = getIt();
+                        coachProvider.getCourseDetails(widget.courseId);
+                      });
                     },
                   ),
                 ],
@@ -274,46 +330,72 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
   Future<void> _openGallery(CoachServicesProvider provider) async {
     ImagePicker imagePicker = ImagePicker();
     final file = await imagePicker.pickVideo(source: ImageSource.gallery);
-    if(file!=null){
+    if (file != null) {
       File videoFile = File(file.path);
       provider.uploadeSessionVideo(widget.courseId, file.name, videoFile);
     }
   }
 
-  void _showAccecptanceDialog(BuildContext context, CoachServicesProvider provider) {
-    showDialog(context: context, builder: (context){
-      return AlertDialog(
-        content:  CustomText(title: "do you want it free".tr() ),
-        actions: [
-          TextButton(onPressed: (){
-            provider.updateIsFree(true);
-            _openGallery(provider);
-            Navigator.pop(context);
-          }, child:  CustomText(title: "yes".tr(),)),
-          TextButton(onPressed: (){
-            provider.updateIsFree(false);
-            _openGallery(provider);
-            Navigator.pop(context);
-          }, child:  CustomText(title: "no".tr(),)),
-        ],
-      );
-    });
+  void _showAccecptanceDialog(
+    BuildContext context,
+    CoachServicesProvider provider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: CustomText(title: "do you want it free".tr()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                provider.updateIsFree(true);
+                _openGallery(provider);
+                Navigator.pop(context);
+              },
+              child: CustomText(title: "yes".tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                provider.updateIsFree(false);
+                _openGallery(provider);
+                Navigator.pop(context);
+              },
+              child: CustomText(title: "no".tr()),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void _showDeleteDilaog(BuildContext context,CoachServicesProvider provider,int sessionId) {
-    showDialog(context: context, builder: (context){
-      return AlertDialog(
-        content:  CustomText(title: "do you want to delete this session".tr()),
-        actions: [
-          TextButton(onPressed: (){
-            provider.deleteSession(sessionId);
-            Navigator.pop(context);
-          }, child:  CustomText(title: "yes".tr(),)),
-          TextButton(onPressed: (){
-            Navigator.pop(context);
-          }, child:  CustomText(title: "no".tr(),)),
-        ],
-      );
-    });
+  void _showDeleteDilaog(
+    BuildContext context,
+    CoachServicesProvider provider,
+    int sessionId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (builderContext) {
+        return AlertDialog(
+          content: CustomText(title: "do you want to delete this session".tr()),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(builderContext).pop();
+                await provider.deleteSession(sessionId);
+                provider.getCourseDetails(widget.courseId);
+              },
+              child: CustomText(title: "yes".tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(builderContext).pop();
+              },
+              child: CustomText(title: "no".tr()),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

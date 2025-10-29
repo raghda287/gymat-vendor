@@ -27,6 +27,14 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+            	<!-- You can find it on /ios/project.pbxproj - 'PRODUCT_BUNDLE_IDENTIFIER' -->
+                <string>com.apps.gymatvendor</string>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                  <!-- Your app title -->
+                  <string>Gymat</string>
+                </array>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.668945487417-p9k2dr5vqi51q5e9cgn595evn8vp1ajs</string>

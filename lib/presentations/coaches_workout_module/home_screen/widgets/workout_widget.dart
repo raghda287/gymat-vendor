@@ -49,7 +49,7 @@ class WorkoutWidget extends StatelessWidget {
         Consumer<CoachHomeProvider>(
           builder: (context,provider,_) {
             return provider.isLoadingWorkouts?const LoadingIndicator(width: 24,stroke: 3,):SizedBox(
-              height: !provider.isLoadingWorkouts&&provider.workouts.isNotEmpty? 160:36,
+              height: !provider.isLoadingWorkouts&&provider.workouts.isNotEmpty? 160:10,
               child: provider.isLoadingWorkouts?const LoadingIndicator():ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                   shrinkWrap: true,
@@ -76,7 +76,6 @@ class WorkoutWidget extends StatelessWidget {
             );
           }
         ),
-        const SizedBox(height: 12,),
 
       ],
     );

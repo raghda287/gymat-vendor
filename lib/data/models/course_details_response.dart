@@ -36,6 +36,8 @@ class CourseDetailsData {
         required this.description,
         required this.id,
         required this.title,
+        required this.image,
+        required this.isFree
     });
 
     List<Session> sessions;
@@ -43,6 +45,8 @@ class CourseDetailsData {
     String description;
     int id;
     String title;
+    String image;
+    bool isFree;
 
     factory CourseDetailsData.fromJson(Map<dynamic, dynamic> json) => CourseDetailsData(
         sessions: List<Session>.from(json["sessions"].map((x) => Session.fromJson(x))),
@@ -50,6 +54,8 @@ class CourseDetailsData {
         description: json["description"],
         id: json["id"],
         title: json["title"],
+        image: json["image"],
+        isFree: json["is_free"]
     );
 
     Map<dynamic, dynamic> toJson() => {
@@ -58,6 +64,8 @@ class CourseDetailsData {
         "description": description,
         "id": id,
         "title": title,
+        "image": image,
+        "is_free": isFree
     };
 }
 

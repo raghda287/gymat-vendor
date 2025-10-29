@@ -215,13 +215,26 @@ class CoachServiceRepository {
       return ApiResponse.withError(ApiErrorHandler.handleError(e));
     }
   }
-  Future<ApiResponse> addCourse(String courseTitle,String descrition,String price)async{
+  Future<ApiResponse> addCourse(String courseTitle,String descrition,double price,String image,bool isCourseFree)async{
     DioClient dioClient = DioClient();
-    FormData formData = FormData.fromMap({
-      "title":courseTitle,
-      "description":descrition,
-      "price":price
-    });
+    late FormData formData;
+    if(image.isNotEmpty){
+      formData = FormData.fromMap({
+        "title":courseTitle,
+        "description":descrition,
+        "price":price,
+        "image":await MultipartFile.fromFile(image),
+        "is_free":isCourseFree?"1":"0"
+
+      });
+    }else{
+      formData = FormData.fromMap({
+        "title":courseTitle,
+        "description":descrition,
+        "price":price,
+        "is_free":isCourseFree?"1":"0"
+      });
+    }
     try{
       Response response = await dioClient.post(AppUrls.addCourse,formData: formData);
       return ApiResponse.withSuccess(response);
@@ -271,6 +284,16 @@ class CoachServiceRepository {
       DioClient dioClient = DioClient();
       Response response = await dioClient.delete("${AppUrls.deleteSession}/$sesseionId");
       return ApiResponse.withSuccess(response);
+    }catch(e){
+      return ApiResponse.withError(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  Future<ApiResponse> deleteCourse(int courseId)async{
+    try{
+      DioClient dioClient = DioClient();
+          Response response = await dioClient.delete("${AppUrls.deleteCourse}/$courseId");
+          return ApiResponse.withSuccess(response);
     }catch(e){
       return ApiResponse.withError(ApiErrorHandler.handleError(e));
     }

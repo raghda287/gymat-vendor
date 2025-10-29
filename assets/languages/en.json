@@ -143,7 +143,7 @@
   "Personal coaches": "Personal coaches",
   "Workouts": "Workouts",
   "Live sessions": "Live sessions",
-  "Live": "Live",
+  "": "Live",
   "Unfollow": "Unfollow",
   "Follow": "Follow",
   "Bio" :"Bio",
@@ -671,5 +671,15 @@
   "no": "no",
   "do you want to delete this session": "do you want to delete this session",
   "Add Course": "Add Course",
-  "Course Title": "Course Title"
+  "Course Title": "Course Title",
+  "Payed": "Payed",
+  "Start instant": "Start instant",
+  "Schedule Meeting": "Schedule Meeting",
+  "recorded": "recorded",
+  "Something went wrong": "Something went wrong",
+  "Course deleted successfully": "Course deleted successfully",
+  "Session Deleted Successfully": "Session Deleted Successfully",
+  "do you want to delete this course": "do you want to delete this course",
+  "Write a comment": "Write a comment",
+  "Choose Session Date": "Choose Session Date"
 }

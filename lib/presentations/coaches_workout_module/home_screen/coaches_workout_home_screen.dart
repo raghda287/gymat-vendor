@@ -254,7 +254,7 @@ class _HealthClubSpaScreenState extends State<CoachesWorkoutHomeScreen> with Wid
                     }
                 ),
 
-                const SizedBox(height: 8,),
+                const SizedBox(height: 24,),
                 ListTile(
                   horizontalTitleGap: 4,
                   leading: CustomSvgIcon(assetName: 'add_service',width: 16,height: 16,color: AppTheme.isDarkMode()?Colors.white:mainColor,),
@@ -288,30 +288,31 @@ class _HealthClubSpaScreenState extends State<CoachesWorkoutHomeScreen> with Wid
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: provider.isLoadingDepartments
                         ? const LoadingIndicator(width: 24,stroke: 3,)
-                        : GridView.builder(
-                        shrinkWrap: true,
-                        itemCount: provider.departments.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            childAspectRatio: 2.5,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8),
-                        itemBuilder: (context, index) {
-                          return HomeCategoryWidget(
-                              title: provider.departments[index].getTitle(),
-                              onTap: () {
-                                NavigatorHandler.push(CoachServicesScreen(homeDepartmentModel: provider.departments[index],));
+                        : SizedBox(
+                      height: 10,
+                      child: GridView.builder(
+                          shrinkWrap: true,
+                          itemCount: provider.departments.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 2.5,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8),
+                          itemBuilder: (context, index) {
+                            return HomeCategoryWidget(
+                                title: provider.departments[index].getTitle(),
+                                onTap: () {
+                                  NavigatorHandler.push(CoachServicesScreen(homeDepartmentModel: provider.departments[index],));
 
-                              });
-                        }),
+                                });
+                          }),
+                    ),
                   );
                 }),
-
-                const SizedBox(height: 12,),
                 const WorkoutWidget(),
-                const LiveSessionWidget(),
+                // const LiveSessionWidget(),
                 const CoursesWidget()
               ],
             ),

@@ -733,7 +733,7 @@ class AuthProvider with ChangeNotifier {
         locationModel != null &&
         name.isNotEmpty &&
         ((phone.length == 9 && phone.startsWith('5')) ||
-            (phone.length == 10 && phone.startsWith('05'))) &&
+            (phone.length == 10)) &&
         description.isNotEmpty) {
       if (email.isNotEmpty && !EmailValidator.validate(email)) {
         CustomScaffoldMessanger.showToast(title: 'Invalid email address'.tr());
