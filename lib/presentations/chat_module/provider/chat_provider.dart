@@ -38,7 +38,66 @@ class ChatProvider with ChangeNotifier{
   //////////////////////////////////////////////////////
   UserProfileModel? userProfileModel;
   //////////////////////////////////////////////////////
+  Future<void> refreshCurrentRoomMessages(
+      num userId,
+      String? name,
+      String? image,
+      num? roomId,
+      ) async {
+    if (roomId == null) return;
 
+    try {
+      final response = await repository.createAndGetMessages(userId);
+
+      if (response.response != null &&
+          (response.response!.statusCode == 200 ||
+              response.response!.statusCode == 201) &&
+          response.response!.data != null &&
+          response.code == 200) {
+        final newRoomModel = RoomModel.fromJson(
+          response.response?.data['data'],
+        );
+
+        roomModel = newRoomModel;
+        selectedRoom = newRoomModel;
+
+        messages
+          ..clear()
+          ..addAll(newRoomModel.messages);
+
+        isLoading = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('errorRefreshCurrentRoomMessages=>>>>$e');
+    }
+  }
+  void onNewMessage(MessageModel messageModel) {
+    if (roomModel != null && roomModel!.id == messageModel.room_id) {
+      final alreadyExists = messages.any(
+            (message) => message != null && message.id == messageModel.id,
+      );
+
+      if (!alreadyExists) {
+        messages.insert(0, messageModel);
+        notifyListeners();
+      }
+    }
+
+    for (int index = 0; index < rooms.length; index++) {
+      RoomModel? currentRoom = rooms[index];
+
+      if (currentRoom != null &&
+          currentRoom.id == messageModel.room_id &&
+          currentRoom.id != null) {
+        currentRoom.latest_message = messageModel;
+        rooms[index] = currentRoom;
+        sortRooms();
+        notifyListeners();
+        break;
+      }
+    }
+  }
   void initChat(){
     roomModel = null;
     messages.clear();
@@ -79,7 +138,7 @@ class ChatProvider with ChangeNotifier{
     return filePath;
   }
 
-  void createChatRoom(num userId, String? name, String? image,num? roomId) async
+   createChatRoom(num userId, String? name, String? image,num? roomId) async
   {
     ProgressDialog dialog = createProgressDialog(context: navigatorKey.currentContext!, msg: 'Creating chat ...'.tr());
 
@@ -432,37 +491,6 @@ class ChatProvider with ChangeNotifier{
     });
   }
 
-  void onNewMessage(MessageModel messageModel){
-
-    if(selectedRoom!=null){
-      if(selectedRoom!.id == messageModel.room_id &&selectedRoom!.id !=null){
-        messages.insert(0,messageModel);
-        notifyListeners();
-      }
-    }else{
-      messages.insert(0,messageModel);
-      notifyListeners();
-    }
-
-
-    print('roomLength=>>>${rooms.length}');
-
-    for(int index = 0;index<rooms.length;index++){
-      RoomModel? roomModel = rooms[index];
-      print('roomsMessage=>>>${roomModel?.id}----${messageModel.room_id}');
-
-      if(roomModel!=null&&roomModel.id == messageModel.room_id&&roomModel.id!=null){
-        roomModel.latest_message = messageModel;
-        rooms[index] = roomModel;
-        sortRooms();
-        notifyListeners();
-      }
-    }
-
-
-
-
-  }
 
   void onNewRoomCreated(RoomModel roomModel){
     selectedRoom ??= roomModel;

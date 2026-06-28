@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gymatvendor/core/dimens/dimens.dart';
 import 'package:gymatvendor/data/models/course_response.dart';
@@ -27,7 +26,7 @@ class CoursesScreen extends StatefulWidget {
 
 class CoursesScreenState extends State<CoursesScreen> {
   @override
-  void initState(){
+  void initState() {
     super.initState();
     CoachServicesProvider provider = getIt();
     provider.getCourses();
@@ -55,12 +54,37 @@ class CoursesScreenState extends State<CoursesScreen> {
         builder: (context, provider, _) {
           return provider.courseResponse == null ||
                   provider.courseResponse!.data.isEmpty
-              ? Center(
-                child: CustomText(
-                  title: "No Courses Founded",
-                  fontColor:
+              ? Stack(
+                children: [
+                  Center(
+                    child: CustomText(
+                      title: "No Courses Founded",
+                      fontColor:
                       AppTheme.isDarkMode() ? Colors.white : Colors.black,
-                ),
+                    ),
+                  ),
+
+                  PositionedDirectional(
+                    bottom: 20,
+                    start: 20,
+                    end: 20,
+                    child: CustomButton(
+                      title: "Add Course".tr(),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) {
+                              return AddCourseScreen();
+                            },
+                          ),
+                        ).then((value) {
+                          provider.getCourses();
+                        });
+                      },
+                    ),
+                  ),
+                ],
               )
               : Padding(
                 padding: const EdgeInsetsDirectional.symmetric(
@@ -72,49 +96,66 @@ class CoursesScreenState extends State<CoursesScreen> {
                   height: Dimens.height,
                   child: Column(
                     children: [
-                      Expanded(child: ListView.separated(
-                        itemBuilder: (context, index) {
-                          CourseData courseData =
-                          provider.courseResponse?.data == null
-                              ? CourseData(
-                            price: 0,
-                            description: "",
-                            id: 0,
-                            title: "",
-                            image: "",
-                            isFree: false
-                          )
-                              : provider.courseResponse!.data[index];
-                          return InkWell(
-                            child: CourseCardWidget(
-                              width: Dimens.width,
-                              courseData: courseData,
-                              deleteCourse: ()async{
-                                _showDeleteDialog(context,provider,courseData.id);
+                      Expanded(
+                        child: ListView.separated(
+                          itemBuilder: (context, index) {
+                            CourseData courseData =
+                                provider.courseResponse?.data == null
+                                    ? CourseData(
+                                      price: 0,
+                                      description: "",
+                                      id: 0,
+                                      title: "",
+                                      image: "",
+                                      isFree: false,
+                                    )
+                                    : provider.courseResponse!.data[index];
+                            return InkWell(
+                              child: CourseCardWidget(
+                                width: Dimens.width,
+                                courseData: courseData,
+                                deleteCourse: () async {
+                                  _showDeleteDialog(
+                                    context,
+                                    provider,
+                                    courseData.id,
+                                  );
+                                },
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return CourseDetailsScreen(
+                                        courseId: courseData.id,
+                                      );
+                                    },
+                                  ),
+                                );
                               },
-                            ),
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context){
-                                return CourseDetailsScreen(courseId: courseData.id);
-                              }));
-                            },
-                            onLongPress: ()async{
-                              _showDeleteDialog(context,provider,courseData.id);
-                            },
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(height: 10);
-                        },
-                        itemCount:
-                        provider.courseResponse?.data == null
-                            ? 0
-                            : provider.courseResponse!.data.length,
-                      )),
-                      const SizedBox(height: 10,),
+                              onLongPress: () async {
+                                _showDeleteDialog(
+                                  context,
+                                  provider,
+                                  courseData.id,
+                                );
+                              },
+                            );
+                          },
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(height: 10);
+                          },
+                          itemCount:
+                              provider.courseResponse?.data == null
+                                  ? 0
+                                  : provider.courseResponse!.data.length,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       CustomButton(
                         title: "Add Course".tr(),
-                        onTap: () async{
+                        onTap: () async {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -122,13 +163,13 @@ class CoursesScreenState extends State<CoursesScreen> {
                                 return AddCourseScreen();
                               },
                             ),
-                          ).then((value){
+                          ).then((value) {
                             provider.getCourses();
                           });
                         },
                       ),
                     ],
-                  )
+                  ),
                 ),
               );
         },
@@ -136,21 +177,34 @@ class CoursesScreenState extends State<CoursesScreen> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, CoachServicesProvider provider, int courseId) {
-    showDialog(context: context, builder: (context){
-      return AlertDialog(
-        content:  CustomText(title: "do you want to delete this course".tr()),
-        actions: [
-          TextButton(onPressed: ()async{
-            await provider.deleteCourse(courseId);
-            provider.getCourses();
-            Navigator.pop(context);
-          }, child:  CustomText(title: "yes".tr(),)),
-          TextButton(onPressed: (){
-            Navigator.pop(context);
-          }, child:  CustomText(title: "no".tr(),)),
-        ],
-      );
-    });
+  void _showDeleteDialog(
+    BuildContext context,
+    CoachServicesProvider provider,
+    int courseId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: CustomText(title: "do you want to delete this course".tr()),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await provider.deleteCourse(courseId);
+                provider.getCourses();
+                Navigator.pop(context);
+              },
+              child: CustomText(title: "yes".tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: CustomText(title: "no".tr()),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

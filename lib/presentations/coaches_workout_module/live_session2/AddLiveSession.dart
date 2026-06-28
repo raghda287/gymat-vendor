@@ -28,8 +28,6 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
   @override
   void dispose() {
     super.dispose();
-    final provider = getIt<LiveSessionProvider2>();
-    provider.clearData();
   }
   @override
   Widget build(BuildContext context) {
@@ -356,23 +354,58 @@ class AddLiveSessionState extends State<AddLiveSessionScreen> {
     }
   }
 
-  Future<void> _showAcceptanceDialog(BuildContext context, LiveSessionProvider2 provider) async {
-    showDialog(context: context, builder: (context){
-      return AlertDialog(
-        content:  CustomText(title: "do you want it free".tr()),
-        actions: [
-          TextButton(onPressed: (){
-            provider.updateIsFree(true);
-            provider.createLiveSession(widget.courseId, "instant");
-            Navigator.pop(context);
-          }, child:  CustomText(title: "yes".tr(),)),
-          TextButton(onPressed: (){
-            provider.updateIsFree(false);
-            provider.createLiveSession(widget.courseId, "instant");
-            Navigator.pop(context);
-          }, child:  CustomText(title: "no".tr(),)),
-        ],
-      );
-    });
-  }
-}
+  Future<void> _showAcceptanceDialog(
+      BuildContext context,
+      LiveSessionProvider2 provider,
+      ) async {
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          content: CustomText(
+            title: "do you want it free".tr(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                await Future.delayed(
+                  const Duration(milliseconds: 200),
+                );
+
+                provider.updateIsFree(true);
+
+                await provider.createLiveSession(
+                  widget.courseId,
+                  "instant",
+                );
+              },
+              child: CustomText(
+                title: "yes".tr(),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+
+                await Future.delayed(
+                  const Duration(milliseconds: 200),
+                );
+
+                provider.updateIsFree(false);
+
+                await provider.createLiveSession(
+                  widget.courseId,
+                  "instant",
+                );
+              },
+              child: CustomText(
+                title: "no".tr(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }}

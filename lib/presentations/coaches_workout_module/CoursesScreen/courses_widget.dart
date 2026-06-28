@@ -34,13 +34,13 @@ class CoursesWidget extends StatelessWidget{
                 // ProfileProvider provider = getIt();
 
                 // if(provider.getUserModel() != null &&!provider.getUserModel()!.providerModel!.is_accepted){
-                //   CustomScaffoldMessanger.showToast(title: 'Please wait, your information is being reviewed.'.tr());
+                //   CustomScaffoldMessanger.showToast(title: 'Please wait, your information is being reviewed.   '.tr());
                 // }else{
                 //   NavigatorHandler.push(const WorkoutScreen());
 
                 //}
 
-                Navigator.push(context, MaterialPageRoute(builder: (_){return CoursesScreen();}));
+                Navigator.push(context, MaterialPageRoute(builder: (_){return const CoursesScreen();}));
               },
               child: CustomText(title: 'See All'.tr(),fontColor: AppTheme.isDarkMode()?Colors.white:mainColor,fontSize: 14,)),
         ),

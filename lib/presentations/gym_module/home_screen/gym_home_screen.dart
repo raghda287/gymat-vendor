@@ -9,6 +9,7 @@ import 'package:gymatvendor/core/number_format/numberFormat.dart';
 import 'package:gymatvendor/injection.dart';
 import 'package:gymatvendor/presentations/auth_module/registration_info_screen/registration_info_screen.dart';
 import 'package:gymatvendor/presentations/chat_module/chat_screen/chat_screen.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/CoursesScreen/courses_widget.dart';
 import 'package:gymatvendor/presentations/growth_module/growth_screen.dart';
 import 'package:gymatvendor/presentations/gym_module/gym_orders_screen/gymOrderScreen.dart';
 import 'package:gymatvendor/presentations/gym_module/home_screen/widgets/card_chart_placehoder_widget.dart';
@@ -120,6 +121,7 @@ class _GymHomeScreenState extends State<GymHomeScreen> with WidgetsBindingObserv
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  CoursesWidget(),
                   Consumer<ProfileProvider>(builder: (context, provider, _) {
                     if(provider.getUserModel() != null && !provider.getUserModel()!.providerModel!.sign_info){
                       return const UnAuthWidget();

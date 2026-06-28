@@ -6,7 +6,6 @@ import 'package:gymatvendor/data/models/department_model.dart';
 import 'package:gymatvendor/data/models/shop_service_model.dart';
 import 'package:gymatvendor/presentations/shop_module/provider/shop_services_provider.dart';
 import 'package:gymatvendor/presentations/shop_module/widgets/addition_widget.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';

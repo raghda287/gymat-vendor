@@ -9,6 +9,7 @@ import 'package:gymatvendor/presentations/coaches_workout_module/CoursesScreen/S
 import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/AddLiveSession.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/Provider/LiveSessionProvider2.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/SessionScreen.dart';
+import 'package:gymatvendor/presentations/coaches_workout_module/live_session2/VideoSessionScreen.dart';
 import 'package:gymatvendor/presentations/coaches_workout_module/provider/coach_services_provider.dart';
 import 'package:gymatvendor/presentations/widgets/custom_button/custom_button.dart';
 import 'package:gymatvendor/presentations/widgets/custom_text/custom_text.dart';
@@ -172,30 +173,68 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                   currentSesssion.id,
                                 );
                               },
-                              onTap: () {
-                                if (currentSesssion.type == "live") {
-                                  final provider =
-                                      getIt<LiveSessionProvider2>();
+                              onTap: () async {
+                                final Session currentSession = currentSesssion;
+
+                                debugPrint("Session id: ${currentSession.id}");
+                                debugPrint("Session type: ${currentSession.type}");
+                                debugPrint("Session status: ${currentSession.status}");
+                                debugPrint("Session file: ${currentSession.file}");
+                                debugPrint("Can play recording: ${currentSession.canPlayRecording}");
+
+                                if (currentSession.canOpenAgora &&
+                                    (currentSession.status == null || currentSession.status != "ended")) {
+
+                                  final liveProvider = getIt<LiveSessionProvider2>();
+                                  final result = await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChangeNotifierProvider.value(
+                                        value: liveProvider,
+                                        child: SessionScreen(
+                                          channelName: currentSession.channelName,
+                                          sessionId: currentSession.id,
+                                          userId: liveProvider.userSessionId ?? 0,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+
+                                  if (result == true && context.mounted) {
+                                    provider.getCourseDetails(widget.courseId);
+                                  }
+                                  return;
+                                }
+
+                                // فتح التسجيل (الأولوية الأعلى)
+                                if ((currentSession.canPlayRecording || currentSession.hasValidFile) &&
+                                    currentSession.file.isNotEmpty &&
+                                    !currentSession.file.contains("no_image")) {
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              ChangeNotifierProvider.value(
-                                                value: provider,
-                                                child: SessionScreen(
-                                                  channelName:
-                                                      currentSesssion
-                                                          .channelName,
-                                                  sessionId: currentSesssion.id,
-                                                  userId: provider.userSessionId??0,
-                                                ),
-                                              ),
+                                      builder: (_) => VideoSessionScreen(url: currentSession.file),
                                     ),
                                   );
+                                  return;
                                 }
-                              },
-                            );
+
+                                // حالة المحاضرة منتهية بدون تسجيل
+                                if (currentSession.isEnded) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("المحاضرة انتهت ولا يوجد تسجيل متاح حالياً"),
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("الفيديو غير متاح")),
+                                );
+                              },                        );
                           },
                           separatorBuilder: (context, index) {
                             return const SizedBox(height: 10);
@@ -304,17 +343,16 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (context) => ChangeNotifierProvider.value(
-                                value: provider,
-                                child: AddLiveSessionScreen(
-                                  courseId: widget.courseId,
-                                ),
-                              ),
+                          builder: (context) => ChangeNotifierProvider.value(
+                            value: provider,
+                            child: AddLiveSessionScreen(
+                              courseId: widget.courseId,
+                            ),
+                          ),
                         ),
-                      ).then((value) {
-                        CoachServicesProvider coachProvider = getIt();
-                        coachProvider.getCourseDetails(widget.courseId);
+                      ).then((value){
+                        
+                      //  provider.
                       });
                     },
                   ),
@@ -329,13 +367,52 @@ class CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
   Future<void> _openGallery(CoachServicesProvider provider) async {
     ImagePicker imagePicker = ImagePicker();
-    final file = await imagePicker.pickVideo(source: ImageSource.gallery);
-    if (file != null) {
-      File videoFile = File(file.path);
-      provider.uploadeSessionVideo(widget.courseId, file.name, videoFile);
-    }
-  }
 
+    final XFile? pickedFile = await imagePicker.pickVideo(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile == null) {
+      return;
+    }
+
+    final File videoFile = File(pickedFile.path);
+
+    if (!await videoFile.exists()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ملف الفيديو غير موجود'),
+        ),
+      );
+      return;
+    }
+
+    final int fileSizeBytes = await videoFile.length();
+    final double fileSizeMb = fileSizeBytes / (1024 * 1024);
+
+    debugPrint('PICKED VIDEO NAME: ${pickedFile.name}');
+    debugPrint('PICKED VIDEO PATH: ${pickedFile.path}');
+    debugPrint('PICKED VIDEO SIZE MB: ${fileSizeMb.toStringAsFixed(2)}');
+
+    const double maxSizeMb = 100;
+
+    if (fileSizeMb > maxSizeMb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'حجم الفيديو كبير جدًا: ${fileSizeMb.toStringAsFixed(1)} MB',
+          ),
+        ),
+      );
+      return;
+    }
+
+    provider.uploadeSessionVideo(
+      widget.courseId,
+      pickedFile.name,
+      videoFile,
+    );
+  }
   void _showAccecptanceDialog(
     BuildContext context,
     CoachServicesProvider provider,

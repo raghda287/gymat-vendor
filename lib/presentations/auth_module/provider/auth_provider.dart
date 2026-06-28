@@ -416,7 +416,7 @@ class AuthProvider with ChangeNotifier {
       if (account == null && appleCredential == null) {
         login(context);
       } else {
-        NavigatorHandler.pushReplacement(const UserTypeScreen());
+        NavigatorHandler.push(const UserTypeScreen());
       }
     } else {
       CustomScaffoldMessanger.showScaffoledMessanger(
@@ -509,28 +509,55 @@ class AuthProvider with ChangeNotifier {
   }
 
   void pickUpFile(String type) async {
-    var filePickerResult = await FilePicker.platform.pickFiles(
-        allowCompression: false,
-        type: FileType.custom,
-        allowedExtensions: ['pdf']);
-    if (filePickerResult != null) {
-      if (type == 'id') {
-        idPhotoPath = filePickerResult.files.single.path;
-      } else if (type == 'passport') {
-        passportPhotoPath = filePickerResult.files.single.path;
-      } else if (type == 'commercialRegistration') {
-        commercialRegistrationPhotoPath = filePickerResult.files.single.path;
-      } else if (type == 'certificate') {
-        if (certificatesFile.length < 5) {
-          certificatesFile.add(
-              CertificateFileModel(filePickerResult.files.single.path!, 'pdf',null));
-        }
+    final filePickerResult = await FilePicker.platform.pickFiles(
+      allowCompression: false,
+      type: FileType.custom,
+      allowedExtensions: [
+        'pdf',
+        'jpg',
+        'jpeg',
+        'png',
+      ],
+    );
+
+    if (filePickerResult == null) return;
+
+    final String? path = filePickerResult.files.single.path;
+
+    if (path == null || path.isEmpty) {
+      CustomScaffoldMessanger.showToast(
+        title: 'File is invalid'.tr(),
+      );
+      return;
+    }
+
+    final String ext = path.split('.').last.toLowerCase();
+
+    if (type == 'id') {
+      idPhotoPath = path;
+    } else if (type == 'passport') {
+      passportPhotoPath = path;
+    } else if (type == 'commercialRegistration') {
+      commercialRegistrationPhotoPath = path;
+    } else if (type == 'certificate') {
+      if (certificatesFile.length >= 5) {
+        CustomScaffoldMessanger.showToast(
+          title: 'Maximum 5 files'.tr(),
+        );
+        return;
       }
 
-      notifyListeners();
+      certificatesFile.add(
+        CertificateFileModel(
+          path,
+          ext,
+          null,
+        ),
+      );
     }
-  }
 
+    notifyListeners();
+  }
   void getLocation(String languageId) async {
     if (isLoadingLocation) {
       return;
@@ -886,7 +913,7 @@ class AuthProvider with ChangeNotifier {
             phoneController.clear();
           }
         } else if (response.code == 422) {
-          NavigatorHandler.pushReplacement(const UserTypeScreen());
+          NavigatorHandler.push(const UserTypeScreen());
         } else {
           CustomScaffoldMessanger.showScaffoledMessanger(
               title: response.innerMessage ?? '');
@@ -899,7 +926,100 @@ class AuthProvider with ChangeNotifier {
       print('signUp error>>>${e.toString()}');
     }
   }
+  bool isConfirmingCode = false;
 
+  void confirmCode() async {
+    if (isConfirmingCode) return;
+
+    isConfirmingCode = true;
+    notifyListeners();
+
+    stopTimer();
+
+    ProgressDialog dialog = createProgressDialog(
+      context: navigatorKey.currentContext!,
+      msg: 'Logining...'.tr(),
+    );
+
+    try {
+      await dialog.show();
+
+      ApiResponse apiResponse = await authRepository.confirmCode(
+        countryCode!.dialCode!,
+        phone!,
+        smsController.text.trim(),
+      );
+
+      await dialog.hide();
+
+      if (apiResponse.response == null) {
+        CustomScaffoldMessanger.showScaffoledMessanger(
+          title: 'Something went wrong'.tr(),
+        );
+        return;
+      }
+
+      if (apiResponse.response!.statusCode == 200 ||
+          apiResponse.response!.statusCode == 201) {
+
+        if (apiResponse.code == 200) {
+          Preferences preferences = Preferences();
+
+          UserModel userModel = UserModel.fromJson(
+            apiResponse.response!.data['data'],
+          );
+
+          preferences.saveUserData(userModel);
+
+          phoneController.clear();
+          smsController.clear();
+
+          account = null;
+          appleCredential = null;
+
+          SocketProvider socketProvider = getIt();
+          socketProvider.connectToSocket();
+
+          Widget? screen = NavigatorHandler().getHomeScreen();
+          if (screen != null) {
+            NavigatorHandler.pushAndRemoveUntil(screen);
+          }
+
+          return;
+        }
+
+        // هنا الكود غلط أو السيرفر رجع validation error
+        if (apiResponse.code == 422) {
+          CustomScaffoldMessanger.showScaffoledMessanger(
+            title: apiResponse.innerMessage ??
+                apiResponse.response!.data['message'] ??
+                'The Code is Wrong'.tr(),
+          );
+
+          return; // مهم جدًا: مايكملش navigation
+        }
+
+        CustomScaffoldMessanger.showScaffoledMessanger(
+          title: apiResponse.innerMessage ??
+              apiResponse.response!.data['message'] ??
+              'Something went wrong'.tr(),
+        );
+
+        return;
+      }
+
+      CustomScaffoldMessanger.showScaffoledMessanger(
+        title: apiResponse.innerMessage ?? 'Something went wrong'.tr(),
+      );
+    } catch (e) {
+      await dialog.hide();
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    } finally {
+      isConfirmingCode = false;
+      notifyListeners();
+    }
+  }
+/*
   void confirmCode()async{
     stopTimer();
     ProgressDialog dialog = createProgressDialog(
@@ -936,12 +1056,14 @@ class AuthProvider with ChangeNotifier {
       CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
     }
   }
+*/
 
   void signUp() async {
     ProgressDialog dialog = createProgressDialog(context: navigatorKey.currentContext!, msg: 'Signing Up...'.tr());
     String name =  providerNameController.text.trim();
     String code = countryCode!.dialCode!;
     String phone = phoneController.text.trim();
+    this.phone = phone;
     try {
       await dialog.show();
 

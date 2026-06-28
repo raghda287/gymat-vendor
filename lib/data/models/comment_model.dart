@@ -1,9 +1,9 @@
-
 import 'dart:convert';
 
-CommentModel commentModelFromJson(String str) => CommentModel.fromJson(json.decode(str));
+CommentModel commentModelFromJson(String str) =>
+    CommentModel.fromJson(json.decode(str));
 
-String chatModelToJson(CommentModel data) => json.encode(data.toJson());
+String commentModelToJson(CommentModel data) => json.encode(data.toJson());
 
 class CommentModel {
     CommentModel({
@@ -16,13 +16,17 @@ class CommentModel {
     List<CommentData> data;
     String message;
 
-    factory CommentModel.fromJson(Map<dynamic, dynamic> json) => CommentModel(
-        code: json["code"],
-        data: List<CommentData>.from(json["data"].map((x) => CommentData.fromJson(x))),
-        message: json["message"],
+    factory CommentModel.fromJson(Map<String, dynamic> json) => CommentModel(
+        code: json["code"] ?? 0,
+        data: json["data"] == null
+            ? []
+            : List<CommentData>.from(
+            json["data"].map((x) => CommentData.fromJson(x)),
+        ),
+        message: json["message"] ?? '',
     );
 
-    Map<dynamic, dynamic> toJson() => {
+    Map<String, dynamic> toJson() => {
         "code": code,
         "data": List<dynamic>.from(data.map((x) => x.toJson())),
         "message": message,
@@ -31,100 +35,52 @@ class CommentModel {
 
 class CommentData {
     CommentData({
+        required this.id,
         required this.comment,
-        required this.id,
         required this.user,
+        required this.isMe,
     });
 
+    int id;
     String comment;
-    int id;
-    DatumUser user;
+    CommentUser user;
+    bool isMe;
 
-    factory CommentData.fromJson(Map<dynamic, dynamic> json) => CommentData(
-        comment: json["comment"],
-        id: json["id"],
-        user: DatumUser.fromJson(json["user"]),
+    factory CommentData.fromJson(Map<String, dynamic> json) => CommentData(
+        id: json["id"] ?? 0,
+        comment: json["comment"] ?? '',
+        user: CommentUser.fromJson(json["user"] ?? {}),
+        isMe: json["is_me"] ?? false,
     );
 
-    Map<dynamic, dynamic> toJson() => {
+    Map<String, dynamic> toJson() => {
+        "id": id,
         "comment": comment,
-        "id": id,
         "user": user.toJson(),
+        "is_me": isMe,
     };
 }
 
-class DatumUser {
-    DatumUser({
-        required this.user,
-    });
-
-    UserUser user;
-
-    factory DatumUser.fromJson(Map<dynamic, dynamic> json) => DatumUser(
-        user: UserUser.fromJson(json["user"]),
-    );
-
-    Map<dynamic, dynamic> toJson() => {
-        "user": user.toJson(),
-    };
-}
-
-class UserUser {
-    UserUser({
-        required this.wallet,
-        required this.gender,
-        required this.phone,
-        required this.following,
-        required this.name,
-        required this.weight,
-        required this.photo,
+class CommentUser {
+    CommentUser({
         required this.id,
-        required this.type,
-        required this.age,
-        required this.phoneCode,
-        required this.height,
+        required this.name,
+        required this.photo,
     });
 
-    int wallet;
-    String gender;
-    String phone;
-    int following;
-    String name;
-    int weight;
-    String photo;
     int id;
-    String type;
-    int age;
-    String phoneCode;
-    int height;
+    String name;
+    String photo;
 
-    factory UserUser.fromJson(Map<dynamic, dynamic> json) => UserUser(
-        wallet: json["wallet"],
-        gender: json["gender"],
-        phone: json["phone"],
-        following: json["following"],
-        name: json["name"],
-        weight: json["weight"],
-        photo: json["photo"],
-        id: json["id"],
-        type: json["type"],
-        age: json["age"],
-        phoneCode: json["phone_code"],
-        height: json["height"],
+    factory CommentUser.fromJson(Map<String, dynamic> json) => CommentUser(
+        id: json["id"] ?? 0,
+        name: json["name"] ?? '',
+        photo: json["photo"] ?? '',
     );
 
-    Map<dynamic, dynamic> toJson() => {
-        "wallet": wallet,
-        "gender": gender,
-        "phone": phone,
-        "following": following,
-        "name": name,
-        "weight": weight,
-        "photo": photo,
+    Map<String, dynamic> toJson() => {
         "id": id,
-        "type": type,
-        "age": age,
-        "phone_code": phoneCode,
-        "height": height,
+        "name": name,
+        "photo": photo,
     };
 }

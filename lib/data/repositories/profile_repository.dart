@@ -18,4 +18,27 @@ class ProfileRepository {
     }
   }
 
+  Future<ApiResponse> downloadContract()async{
+    try{
+      DioClient dioClient = DioClient();
+      Response response = await dioClient.get(AppUrls.downloadContract);
+      return ApiResponse.withSuccess(response);
+    }
+    catch(e){
+      return ApiResponse.withError(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  Future<ApiResponse> uploadContract(MultipartFile contractFile)async{
+    try{
+      DioClient dioClient = DioClient();
+      Response response = await dioClient.post(AppUrls.uploadContract,
+      formData: FormData.fromMap({
+        'contract':contractFile
+      }));
+      return ApiResponse.withSuccess(response);
+    }catch(e){
+      return ApiResponse.withError(ApiErrorHandler.handleError(e));
+    }
+  }
 }

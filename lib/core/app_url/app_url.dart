@@ -4,20 +4,42 @@ class AppUrls {
 
   static const String socketUrl = 'https://node.gymatapp.com/';
 
-  ///////////////////////socketUrls/////////////////////////////
+  /// REST endpoints
+  static const String createLiveSession = 'provider/market/sessions';
+  static const String joinLiveSession = 'provider/market/join/session';
+
+  /// غيّر ده حسب endpoint الحقيقي عندك لإنهاء الجلسة في Laravel
+  static const String endSession = 'provider/market/end-session';
+
+  static const String generateChatToken = 'provider/market/generate/rtm/token';
+  static const String comment = 'provider/market/comments';
+  /// Socket events فقط
+  /// Node HTTP endpoints
+  static const String acquire = 'acquire';
+  static const String startRecording = 'start';
+  static const String stopRecording = 'stop';
+
+  static const String acquireRecordingHttp = '${socketUrl}${acquire}';
+  static const String startRecordingHttp = '${socketUrl}${startRecording}';
+  static const String stopRecordingHttp = '${socketUrl}${stopRecording}';
+  // static const String baseUrl = 'https://gymatapp.com/';
+  // static const String baseUrlApi = 'https://gymatapp.com/api/';
+  //
+  // static const String socketUrl = 'https://node.gymatapp.com/';
+  //
+  // ///////////////////////socketUrls/////////////////////////////
+  // static const String stopRecording = 'gimat_end';
+  // static const String startRecording = 'gimat_start';
+
   static const String socketJoinRooms = 'gimat_join_rooms';
   static const String socketJoinMarket = 'gimat_market_join';
-
 
   static const String socketSendFirstMessage = 'gimat_one_user_send_data';
   static const String socketSendMessage = 'gimat_one_room_send_data';
 
-
-
   static const String socketReceiveFirstMessage = 'gimat_one_market_receive_data';
   static const String socketReceiveMessage = 'gimat_one_room_receive_data';
   static const String socketLeaveRooms = 'gimat_leaves_rooms';
-
 
   ///////////////////////socketUrls/////////////////////////////
 
@@ -52,7 +74,6 @@ class AppUrls {
   static const String healthtFoodService = 'food/provider/market/services';
   static const String sportsFieldCategories = 'sport/provider/market/categories';
   static const String sportsFieldService = 'sport/provider/market/services';
-  static const String shopCategories = 'shop/provider/market/categories';
   static const String mainShopCategories = 'shopCategories';
   static const String ad = 'provider/market/ad';
   static const String shopService = 'shop/provider/market/products';
@@ -63,7 +84,6 @@ class AppUrls {
   static const String coachLiveSession = 'coach/provider/market/live-session';
   static const String coachOrders = 'coach/provider/market/orders';
 
-
   static const String gymOrders = 'gym/provider/market/orders';
   static const String gymOrder = 'gym/provider/market/orders';
   static const String spaOrders = 'spa/provider/market/orders';
@@ -72,13 +92,12 @@ class AppUrls {
   static const String foodOrders = 'food/provider/market/orders';
   static const String shopOrders = 'shop/provider/market/orders';
 
-
   static const String chatRooms = 'provider/market/chat';
   static const String chatCreateGetRoomDataMessages = 'provider/market/chat/create';
   static const String createVideoChatUrl = 'coach/createCall';
   static const String chatPaginationMessages = 'provider/market/paginateMessages';
   static const String userProfile = 'provider/market/getUser';
-  static const String charts  = 'provider/market/chart';
+  static const String charts = 'provider/market/chart';
   static const String getGoals = 'provider/market/getGoals';
   static const String saveGoals = 'provider/market/updateGoals';
   static const String marketData = 'provider/market/data';
@@ -95,11 +114,15 @@ class AppUrls {
   static const String confirmCode = 'provider/auth/provider-confirm-code';
   static const String getCourses = 'provider/market/courses';
   static const String addCourse = 'provider/market/courses';
-  static const String getCourseDetails ='provider/market/courses';
-  static const String createLiveSession = 'provider/market/sessions';
+  static const String getCourseDetails = 'provider/market/courses';
+ // static const String createLiveSession = 'provider/market/sessions';
   static const String deleteSession = 'provider/market/sessions';
   static const String deleteCourse = 'provider/market/courses';
-  static const String joinLiveSession ='provider/market/join/session';
-  static const String generateChatToken = 'provider/market/generate/rtm/token';
-  static const String comment = 'provider/market/comments';
+  // static const String joinLiveSession = 'provider/market/join/session';
+  // static const String generateChatToken = 'provider/market/generate/rtm/token';
+  // static const String comment = 'provider/market/comments';
+  static const String downloadContract = 'provider/market/download-contract';
+  static const String uploadContract = '/provider/market/upload-contract';
+  static const String shopCategories = '/provider/market/upload-contract';
+ // static const String endSession = 'provider/market/end-session';
 }

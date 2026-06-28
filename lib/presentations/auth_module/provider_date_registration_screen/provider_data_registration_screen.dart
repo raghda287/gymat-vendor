@@ -26,9 +26,12 @@ class _ProviderDataRegistrationState extends State<ProviderDataRegistrationScree
   AuthProvider authProvider = getIt();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    authProvider.initProviderDataRegistration();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      authProvider.initProviderDataRegistration();
+    });
   }
   @override
   Widget build(BuildContext context) {

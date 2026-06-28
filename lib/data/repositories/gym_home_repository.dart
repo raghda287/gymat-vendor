@@ -22,6 +22,7 @@ class GymHomeRepository {
 
       DioClient dioClient = DioClient();
       Response response = await dioClient.get(AppUrls.marketHomeData, queryParameters: {'market_id': markertId});
+      print('getStatistics${response.data}');
       return ApiResponse.withSuccess(response);
     } catch (e) {
       return ApiResponse.withError(ApiErrorHandler.handleError(e));

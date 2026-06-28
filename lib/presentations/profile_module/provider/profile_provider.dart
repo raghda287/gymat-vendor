@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gymatvendor/core/utils/preferences.dart';
 import 'package:gymatvendor/data/models/notificationSetting.dart';
@@ -6,15 +9,20 @@ import 'package:gymatvendor/data/models/user_model.dart';
 import 'package:gymatvendor/injection.dart';
 import 'package:gymatvendor/presentations/auth_module/provider/auth_provider.dart';
 import 'package:gymatvendor/presentations/widgets/dialogs/scaffold_messanger.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 import '../../../data/models/api_response.dart';
 import '../../../data/repositories/profile_repository.dart';
+import '../../../main.dart';
+import '../../widgets/dialogs/progress_dialog.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProfileProvider with ChangeNotifier {
   ProfileRepository repository = getIt();
   Preferences preferences = Preferences();
   late UserModel? userModel = preferences.getUserData();
   num folowers = 0;
+  String? contractUrl;
 
   void init() {
     if (getUserModel() != null) {
@@ -162,6 +170,54 @@ class ProfileProvider with ChangeNotifier {
       }
       print('cards error>>>${e.toString()}');
     }
+  }
+
+  void downloadContract()async{
+    ProgressDialog dialog =createProgressDialog(context: navigatorKey.currentContext!, msg: 'Scanning ...'.tr());
+    try{
+      await dialog.show();
+      ApiResponse apiResponse = await repository.downloadContract();
+      if(apiResponse.response!=null&&apiResponse.response!.statusCode==200){
+        if(apiResponse.response!.data['code']==200){
+          contractUrl = apiResponse.response!.data['data']['contract'];
+          notifyListeners();
+        }
+      }else if(apiResponse.error != null){
+        CustomScaffoldMessanger.showScaffoledMessanger(title: apiResponse.error);
+      }
+      dialog.hide();
+    }catch(e){
+      dialog.hide();
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }
+  }
+
+  void uploadContract(File contractFile)async{
+    ProgressDialog dialog =createProgressDialog(context: navigatorKey.currentContext!, msg: 'Scanning ...'.tr());
+    try{
+      await dialog.show();
+      String fileName = contractFile.path.split('/').last;
+      MultipartFile contract = await MultipartFile.fromFile(contractFile.path,
+      filename: fileName,
+      contentType: MediaType('application', 'pdf'));
+      ApiResponse apiResponse = await repository.uploadContract(contract);
+      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
+        if(apiResponse.response!.data['code']==200){
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "ContractUploadedSuccessfully".tr());
+        }else{
+          CustomScaffoldMessanger.showScaffoledMessanger(title: "somethingWentWrong".tr());
+        }
+      }
+      dialog.hide();
+    }catch(e){
+      dialog.hide();
+      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+    }
+  }
+
+  void clearContractUrl(){
+    contractUrl = null;
+    notifyListeners();
   }
 
 }

@@ -134,12 +134,31 @@ class AddCourseScreenState extends State<AddCourseScreen> {
     );
   }
 
-  Future<File?> _openGallery()async{
-    final ImagePicker imagePicker = ImagePicker();
-    final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-    if(image!=null){
-      return File(image.path);
+  Future<File?> _openGallery() async {
+    ImagePicker imagePicker = ImagePicker();
+
+    final XFile? pickedFile = await imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
+
+    if (pickedFile == null) {
+      return null;
     }
-    return null;
+
+    final File imageFile = File(pickedFile.path);
+
+    if (!await imageFile.exists()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ملف الصورة غير موجود'),
+        ),
+      );
+      return null;
+    }
+
+    return imageFile;
   }
 }

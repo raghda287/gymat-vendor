@@ -1,15 +1,16 @@
 import 'dart:io';
 
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gymatvendor/core/utils/preferences.dart';
 import 'package:gymatvendor/data/models/api_response.dart';
-import 'package:gymatvendor/data/models/certificate_file_model.dart';
-import 'package:gymatvendor/data/models/local_workout_video_model.dart';
-import 'package:gymatvendor/data/models/location.dart';
+
 import 'package:gymatvendor/data/models/user_model.dart';
-import 'package:gymatvendor/data/models/workout_model.dart';
-import 'package:gymatvendor/main.dart';
+
 
 import '../../core/app_url/app_url.dart';
 import '../datasource/remote/dio/dio_client.dart';
@@ -247,34 +248,106 @@ class CoachServiceRepository {
     DioClient dioClient = DioClient();
     try{
       Response response = await dioClient.get("${AppUrls.getCourseDetails}/$courseId");
+      print('getCourseDetails${response.data}');
       return ApiResponse.withSuccess(response);
     }catch(e){
       return ApiResponse.withError(ApiErrorHandler.handleError(e));
     }
   }
 
-  Future<ApiResponse> uploadSessionVideo(int courseId,String title,String description,
-      bool isFree,String date,String fromTime,String toTime,String type,File file)async{
-    try{
-      final String fileName = file.path.split(Platform.pathSeparator).last;
-      var formData = FormData.fromMap({
-        'course_id':courseId,
-        'title':title,
-        'description':description,
-        'is_free':isFree?"1" : "0",
-        'date':date,
-        'from_time':fromTime,
-        'to_time':toTime,
-        "type":type,
-        "file": await MultipartFile.fromFile(
-          file.path,
-          filename: fileName,
-        )
-      });
+
+  Future<ApiResponse> uploadSessionVideo(
+      int courseId,
+      String title,
+      String description,
+      bool isFree,
+      String date,
+      String fromTime,
+      String toTime,
+      String type,
+      File file,
+      ) async {
+    try {
+      if (!await file.exists()) {
+        return ApiResponse.withError('ملف الفيديو غير موجود');
+      }
+
+      final int fileSizeBytes = await file.length();
+      final double fileSizeMb = fileSizeBytes / (1024 * 1024);
+
+      print('REPOSITORY VIDEO EXISTS: ${await file.exists()}');
+      print('REPOSITORY VIDEO PATH: ${file.path}');
+      print('REPOSITORY VIDEO SIZE MB: ${fileSizeMb.toStringAsFixed(2)}');
+
+      final String ext = file.path.split('.').last.toLowerCase();
+
+      MediaType mediaType;
+
+      switch (ext) {
+        case 'mp4':
+          mediaType = MediaType('video', 'mp4');
+          break;
+        case 'mov':
+          mediaType = MediaType('video', 'quicktime');
+          break;
+        case 'avi':
+          mediaType = MediaType('video', 'x-msvideo');
+          break;
+        case 'mkv':
+          mediaType = MediaType('video', 'x-matroska');
+          break;
+        case 'webm':
+          mediaType = MediaType('video', 'webm');
+          break;
+        default:
+          mediaType = MediaType('video', 'mp4');
+      }
+
+      final String uploadFileName =
+          'session_${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+      final MultipartFile multipartFile = await MultipartFile.fromFile(
+        file.path,
+        filename: uploadFileName,
+        contentType: mediaType,
+      );
+
+      final FormData formData = FormData();
+
+      formData.fields.addAll([
+        MapEntry('course_id', courseId.toString()),
+        MapEntry('title', title),
+        MapEntry('description', description),
+        MapEntry('is_free', isFree ? '1' : '0'),
+        MapEntry('date', date),
+        MapEntry('from_time', fromTime),
+        MapEntry('to_time', toTime),
+        MapEntry('type', type),
+      ]);
+
+      formData.files.add(
+        MapEntry('file', multipartFile),
+      );
+
+      print('FORM DATA FIELDS: ${formData.fields}');
+      print('FORM DATA FILES LENGTH: ${formData.files.length}');
+      print('FORM DATA FILES: ${formData.files}');
+      print('UPLOAD FILE NAME: $uploadFileName');
+      print('UPLOAD FILE CONTENT TYPE: $mediaType');
+
       DioClient dioClient = DioClient();
-      Response response=await dioClient.post(AppUrls.createLiveSession,formData: formData);
+
+      Response response = await dioClient.post(
+        AppUrls.createLiveSession,
+        formData: formData,
+      );
+
+      print('UPLOAD SESSION RESPONSE STATUS: ${response.statusCode}');
+      print('UPLOAD SESSION RESPONSE BODY: ${response.data}');
+
       return ApiResponse.withSuccess(response);
-    }catch(e){
+    } catch (e) {
+      print('UPLOAD SESSION ERROR: $e');
       return ApiResponse.withError(ApiErrorHandler.handleError(e));
     }
   }

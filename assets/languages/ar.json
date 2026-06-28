@@ -683,5 +683,9 @@
   "Session Deleted Successfully": "تم حذف المحاضرة بنجاح",
   "do you want to delete this course": "هل تريد حذف هذا الكورس",
   "Write a comment": "اكتب تعليقا",
-  "Choose Session Date": "اختار تاريخ المحاضرة"
+  "Choose Session Date": "اختار تاريخ المحاضرة",
+  "ContractUploadedSuccessfully": "تم رفع العقد بنجاج",
+  "NoFileSelected": "لم يتم اختيار ملف",
+  "UploadContract" : "رفع عقد",
+  "DownloadContract": "تحميل عقد"
 }

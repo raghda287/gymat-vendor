@@ -571,41 +571,107 @@ class CoachServicesProvider with ChangeNotifier {
     }
   }
 
-  void uploadeSessionVideo(int courseId,String fileName,File file)async{
+  void uploadeSessionVideo(
+      int courseId,
+      String fileName,
+      File file,
+      ) async {
     ProgressDialog dialog = createProgressDialog(
-        context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
-    try{
+      context: navigatorKey.currentContext!,
+      msg: 'Wait ...'.tr(),
+    );
+
+    try {
       await dialog.show();
-      ApiResponse apiResponse = await repository.uploadSessionVideo(courseId, fileName, fileName, isSessionFree,
-          DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}",
-          "${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}"
-          ,"recorded", file);
-      if(apiResponse.response!.statusCode==200 || apiResponse.response!.statusCode==201){
-        if(apiResponse.response!.data['message'] == "done successfully" || apiResponse.response!.data['message']=="تم بنجاح"){
-          if(dialog.isShowing()){
-            await dialog.hide();
-          }
-          CustomScaffoldMessanger.showScaffoledMessanger(
-              title: "Session created successfully");
-          Navigator.pop(navigatorKey.currentContext!);
-        }else{
-          CustomScaffoldMessanger.showScaffoledMessanger(
-              title: "Something went wrong".tr());
-        }
-      }else{
-        CustomScaffoldMessanger.showScaffoledMessanger(
-            title: "Something went wrong".tr());
+
+      final DateTime now = DateTime.now();
+      final DateTime endTime = now.add(const Duration(hours: 1));
+
+      final String date = DateFormat('yyyy-MM-dd').format(now);
+      final String fromTime = DateFormat('HH:mm').format(now);
+      final String toTime = DateFormat('HH:mm').format(endTime);
+
+      print('PROVIDER VIDEO FILE NAME: $fileName');
+      print('PROVIDER VIDEO PATH: ${file.path}');
+      print('PROVIDER DATE: $date');
+      print('PROVIDER FROM: $fromTime');
+      print('PROVIDER TO: $toTime');
+
+      ApiResponse apiResponse = await repository.uploadSessionVideo(
+        courseId,
+        fileName,
+        fileName,
+        isSessionFree,
+        date,
+        fromTime,
+        toTime,
+        'recorded',
+        file,
+      );
+
+      if (dialog.isShowing()) {
+        await dialog.hide();
       }
-    }catch (e) {
-      CustomScaffoldMessanger.showScaffoledMessanger(title: e.toString());
+
+      if (apiResponse.response == null) {
+        CustomScaffoldMessanger.showScaffoledMessanger(
+          title: apiResponse.error ?? 'فشل رفع الفيديو',
+        );
+        return;
+      }
+
+      final response = apiResponse.response!;
+      final dynamic body = response.data;
+
+      print('PROVIDER UPLOAD RESPONSE STATUS: ${response.statusCode}');
+      print('PROVIDER UPLOAD RESPONSE BODY: $body');
+
+      String message = 'Something went wrong'.tr();
+      int? apiCode;
+
+      if (body is Map) {
+        message = body['message']?.toString() ?? message;
+
+        if (body['code'] != null) {
+          apiCode = int.tryParse(body['code'].toString());
+        }
+      }
+
+      final bool httpOk =
+          response.statusCode == 200 || response.statusCode == 201;
+
+      final bool apiOk =
+          apiCode == 200 ||
+              message == 'done successfully' ||
+              message == 'تم بنجاح';
+
+      if (httpOk && apiOk) {
+        CustomScaffoldMessanger.showScaffoledMessanger(
+          title: 'Session created successfully'.tr(),
+        );
+
+        if (navigatorKey.currentContext != null) {
+          Navigator.pop(navigatorKey.currentContext!);
+        }
+
+        getCourseDetails(courseId);
+      } else {
+        CustomScaffoldMessanger.showScaffoledMessanger(
+          title: message,
+        );
+      }
+    } catch (e) {
+      print('PROVIDER UPLOAD ERROR: $e');
+
+      CustomScaffoldMessanger.showScaffoledMessanger(
+        title: e.toString(),
+      );
     } finally {
       if (dialog.isShowing() && navigatorKey.currentContext != null) {
         await dialog.hide();
       }
     }
   }
-
   Future<void> deleteSession(int sessionId)async{
     ProgressDialog dialog = createProgressDialog(
         context: navigatorKey.currentContext!, msg: 'Wait ...'.tr());
